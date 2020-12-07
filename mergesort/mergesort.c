@@ -1,10 +1,18 @@
 /*
-	Performance comparison between two types of mergesort:
-	 - the first one is the classic one done on a contiguous array
+	Performance comparison between five types of mergesort:
+	 1) the classic one done on a contiguous array
 	    and a temporary array allocation for each 'merge' call
-	 - the second one is the classic one done with a contiguous array
+	 2) the classic one done with a contiguous array
 	    and a single temporary array
-	 - the third one is its version done on a linked list
+	 3) merge-sort on a singly linked list with "main chain"
+	    merging strategy: each element of the "second list"
+	    is inserted inside the "first" (or "main") one
+	 4) merge-sort on a singly linked list with "swapping chains"
+	    merging strategy: instead, of inserting one element at a time,
+	    the pointers to the two chains are swapped
+	 5) merge-sort on a singly linked list with "stream merge"
+	    merging strategy: a third list is built up one element
+	    at a time from the given two.
 
 	Compile with:
 	gcc -Wall -Wpdantic *.c -o mergesort.exe
