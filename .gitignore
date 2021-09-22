@@ -1,5 +1,2 @@
 *.exe
-mergesort/*.exe
-trie/*.exe
-paroliere/*.exe
-secret_code/*.exe
+*/*.exe
