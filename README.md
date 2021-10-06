@@ -9,3 +9,4 @@ I hope you'll find something useful :)
 - [paroliere](https://github.com/Ledmington/personal/tree/main/paroliere) is a C implementation of a brute-force algorithm that finds all possible italian words in a game of "Paroliere" (it's very similar to Ruzzle)
 - [secret_code](https://github.com/Ledmington/personal/tree/main/secret_code) is a C implementation of an algorithm that wins the game "Secret Code" against you (the game is similar to Mastermind)
 - [trie](https://github.com/Ledmington/personal/tree/main/trie) is a C implementation of the "Trie" data structure
+- [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
