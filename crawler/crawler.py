@@ -13,8 +13,8 @@ import logging
 start_url = "http://it.wikipedia.com"
 urls = set()
 explored_urls = set()
-max_number_of_urls = 500
-forbidden_extension = [".png", ".PNG", ".svg", ".jpg", ".JPG", ".jpeg", ".bmp", ".ico"]
+max_number_of_urls = 50
+forbidden_extension = [".png", ".PNG", ".svg", ".jpg", ".JPG", ".jpeg", ".bmp", ".ico", ".gif"]
 max_seconds_to_wait = 2
 quiet_mode = False
 
