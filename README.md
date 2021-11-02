@@ -1,5 +1,6 @@
 # Welcome to Ledmington's personal repository
 This repository is an archive for my personal little projects. Too little to get each one a dedicated repo. These programs are mostly implementation of strange data structures or algorithms to beat some real-world games. I usually implement these in a day or two, just for fun. For this reason, they may have some serious bugs. If you happen to find one, please let me know.
+
 I hope you'll find something useful :)
 
 ## Contents
@@ -11,3 +12,4 @@ I hope you'll find something useful :)
 - [trie](https://github.com/Ledmington/personal/tree/main/trie) is a C implementation of the "Trie" data structure.
 - [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [quad_tree](https://github.com/Ledmington/personal/tree/main/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
+- [xor](https://github.com/Ledmington/personal/tree/main/xor) contains the 128, 256 and 512-bit implementations of the simple XOR hash algorithm.
