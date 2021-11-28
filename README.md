@@ -13,3 +13,4 @@ I hope you'll find something useful :)
 - [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [quad_tree](https://github.com/Ledmington/personal/tree/main/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
 - [xor](https://github.com/Ledmington/personal/tree/main/xor) contains the 128, 256 and 512-bit implementations of the simple XOR hash algorithm.
+- [word_guesser](https://github.com/Ledmington/personal/tree/main/word_guesser) is a simple C game that guesses your word through binary search.
