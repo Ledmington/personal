@@ -14,3 +14,4 @@ I hope you'll find something useful :)
 - [quad_tree](https://github.com/Ledmington/personal/tree/main/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
 - [xor](https://github.com/Ledmington/personal/tree/main/xor) contains the 128, 256 and 512-bit implementations of the simple XOR hash algorithm.
 - [word_guesser](https://github.com/Ledmington/personal/tree/main/word_guesser) is a simple C game that guesses your word through binary search.
+- [magicsquare](https://github.com/Ledmington/personal/tree/main/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
