@@ -5,7 +5,7 @@
     file can be specified as first and only command line parameter.
 
     Compile with:
-    gcc -Wall -Wpedantic *.c -o trie.exe
+    gcc --std=c99 -Werror -Wall -Wpedantic *.c -o trie.exe
 
     Run with:
     ./trie.exe [input_file]
@@ -42,6 +42,7 @@ int main ( int argc, char *argv[] ){
 
     char ch;
     unsigned int num_words = 1;
+    long unsigned int words_size = 0;
     unsigned int *lengths = (unsigned int*) calloc(num_words, sizeof(unsigned int));
     while( (ch = fgetc(fin)) != EOF ){
         if(ch == '\n'){
@@ -57,9 +58,11 @@ int main ( int argc, char *argv[] ){
         fprintf(stderr, "Not enough memory for words array\n");
         goto fine;
     }
+    words_size += sizeof(words);
     for(int i=0; i<num_words; i++){
         words[i] = (char*) malloc((lengths[i]+1)*sizeof(char));
         words[i][lengths[i]] = '\0';
+        words_size += sizeof(words[i]) + ((lengths[i]+1)*sizeof(char));
     }
 
     rewind(fin);
@@ -74,19 +77,22 @@ int main ( int argc, char *argv[] ){
     }
 
 
-
     printf("Building the trie...\n");
     time_t t = clock();
+    TrieNode *trie_root = trie_init();
     for(unsigned int i=0; i<num_words; i++){
-        insert_elem(words[i]);
+        trie_insert(trie_root, words[i]);
     }
     t = clock()-t;
     printf("Building finished.\n%.3f seconds\n\n", (double)t/CLOCKS_PER_SEC);
 
+    printf("Total size of the array: %9lu bytes\n", words_size);
+    printf("Total size of the Trie : %9lu bytes\n\n", trie_size(trie_root));
+
     printf("Searching all the elements...\n");
     t = clock();
     for(unsigned int i=0; i<num_words; i++){
-        if( !search_elem(words[i]) ){
+        if( !trie_search(trie_root, words[i]) ){
             printf("Non ho trovato \"%s\"\n", words[i]);
             getchar();
         }
@@ -95,7 +101,7 @@ int main ( int argc, char *argv[] ){
     printf("Search finished.\n%.3f seconds\n\n", (double)t/CLOCKS_PER_SEC);
 
     fine:
-    delete_tree(&tree);
+    trie_delete(trie_root);
     for(int i=0; i<cont; i++){
         free(words[i]);
     }
