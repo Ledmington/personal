@@ -3,18 +3,20 @@
 
 #include <stdbool.h>
 
-typedef struct s{
-    char letter;
-    bool endOfWord;
-    struct s* sons[26];
-} node;
+typedef struct _trie {
+    struct _trie* father;
+    bool end_of_word;
+    struct _trie* sons[26];
+} TrieNode;
 
-node tree;
+TrieNode* trie_init ( void );
 
-void insert_elem ( char *str );
+void trie_insert ( TrieNode *root, char *str );
 
-void delete_tree ( node *root );
+long unsigned int trie_size ( TrieNode *root );
 
-int search_elem ( char *str );
+void trie_delete ( TrieNode *root );
+
+bool trie_search ( TrieNode *root, char *str );
 
 #endif // TRIE_H_INCLUDED

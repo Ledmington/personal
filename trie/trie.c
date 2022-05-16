@@ -2,45 +2,58 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "trie.h"
 
-void insert_elem (char *str) {
-    node *pn = &tree;
-    for(int i=0; i<strlen(str); i++) {
-        if( pn->sons[ str[i]-'a' ] == NULL ) {
-            pn->sons[ str[i]-'a' ] = (node*) malloc(sizeof(node));
-            pn = pn->sons[ str[i]-'a' ];
-            pn->letter = str[i];
-            pn->endOfWord = false;
-            for(int k=0; k<26; k++) pn->sons[k] = NULL;
-        }
-        else {
-            pn = pn->sons[ str[i]-'a' ];
-        }
+TrieNode* trie_init ( void ) {
+    TrieNode *n = (TrieNode*) malloc(sizeof(TrieNode));
+    assert(n);
+    for(int i=0; i<26; i++) {
+        n->sons[i] = NULL;
     }
-    pn->endOfWord = true;
+    n->father = NULL;
+    n->end_of_word = false;
+    return n;
 }
 
-void delete_tree (node *root) {
-    for(int i=0; i<26; i++) {
-        if( root->sons[i] != NULL ) delete_tree(root->sons[i]);
+void trie_insert (TrieNode *root, char *str) {
+    TrieNode *tmp = root;
+    const int len = strlen(str);
+    for(int i=0; i<len; i++) {
+        const int index = str[i] - 'a';
+        if (tmp->sons[index] == NULL) {
+            tmp->sons[index] = trie_init();
+            tmp->sons[index]->father = tmp;
+        }
+        tmp = tmp->sons[index];
     }
-    free(root->sons);
+    tmp->end_of_word = true;
+}
+
+void trie_delete (TrieNode *root) {
+    for(int i=0; i<26; i++) {
+        if( root->sons[i] != NULL ) trie_delete(root->sons[i]);
+    }
     free(root);
 }
 
-int search_elem(char *str) {
-    for(int i=0; i<strlen(str); i++) {
-        if(ispunct(str[i]) || isdigit(str[i]) || isblank(str[i]) || isupper(str[i])) return 0;
+bool trie_search (TrieNode *root, char* str) {
+    TrieNode *tmp = root;
+    const int len = strlen(str);
+    int i = 0;
+    while (tmp != NULL && i < len) {
+        tmp = tmp->sons[str[i] - 'a'];
+        i++;
     }
-    node *pn = &tree;
-    for(int i=0; i<strlen(str); i++) {
-        if(pn->sons[ str[i]-'a' ] == NULL) return 0;
-        else {
-            pn = pn->sons[ str[i]-'a' ];
-        }
+    return tmp != NULL && tmp->end_of_word;
+}
+
+long unsigned int trie_size (TrieNode *root) {
+    if (root == NULL) return 0;
+    long unsigned int sons_size = 0;
+    for(int i=0; i<26; i++) {
+        sons_size += trie_size(root->sons[i]);
     }
-    if(pn->endOfWord == false) return 0;
-    return 1;
+    return sizeof(root) + sons_size;
 }
