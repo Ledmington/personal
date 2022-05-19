@@ -31,9 +31,9 @@ unsigned int read_serially(const char *filename) {
     FILE *f = fopen(filename, "r");
     char *line;
     int length;
-    while(!feof(f)) {
-        assert(getline(&line, (size_t*)&length, f) != -1);
-        best = min(best, (unsigned int)atoi(line));
+    while(-1 != getline(&line, (size_t*)&length, f)) {
+        const unsigned int n = (unsigned int) atoi(line);
+        best = min(best, n);
     }
     fclose(f);
     return best;
