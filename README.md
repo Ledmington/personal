@@ -12,6 +12,7 @@ I hope you'll find something useful :)
 - [orologio](https://github.com/Ledmington/personal/tree/main/orologio) is a little Python script that calculates the probability of winning a card solitaire game called "Orologio" (the clock).
 - [paroliere](https://github.com/Ledmington/personal/tree/main/paroliere) is a C implementation of a brute-force algorithm that finds all possible italian words in a game of "Paroliere" (it's very similar to Ruzzle).
 - [quad_tree](https://github.com/Ledmington/personal/tree/main/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
+- [queue](https://github.com/Ledmington/personal/tree/main/queue) contains my personal implementation of Circular Queue with Fixed Size (CQFS, for short) with tests and a little benchmark.
 - [secret_code](https://github.com/Ledmington/personal/tree/main/secret_code) is a C implementation of an algorithm that wins the game "Secret Code" against you (the game is similar to Mastermind).
 - [trie](https://github.com/Ledmington/personal/tree/main/trie) is a C implementation of the "Trie" data structure.
 - [word_guesser](https://github.com/Ledmington/personal/tree/main/word_guesser) is a simple C game that guesses your word through binary search.
