@@ -9,6 +9,7 @@ I hope you'll find something useful :)
 - [magicsquare](https://github.com/Ledmington/personal/tree/main/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
 - [mergesort](https://github.com/Ledmington/personal/tree/main/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
 - [mincorr](https://github.com/Ledmington/personal/tree/main/mincorr) is a little C program that finds the array with minimum correlation with a given array.
+- [necklace](https://github.com/Ledmington/personal/tree/main/necklace) is a little Python script that compares some algorithms which solve the necklace problem.
 - [orologio](https://github.com/Ledmington/personal/tree/main/orologio) is a little Python script that calculates the probability of winning a card solitaire game called "Orologio" (the clock).
 - [paroliere](https://github.com/Ledmington/personal/tree/main/paroliere) is a C implementation of a brute-force algorithm that finds all possible italian words in a game of "Paroliere" (it's very similar to Ruzzle).
 - [quad_tree](https://github.com/Ledmington/personal/tree/main/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
