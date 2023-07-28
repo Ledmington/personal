@@ -21,6 +21,7 @@ I hope you'll find something useful :)
 - [xor](https://github.com/Ledmington/personal/tree/main/xor) contains the 128, 256 and 512-bit implementations of the simple XOR hash algorithm.
 
 ## Others
+- [bandwidth](https://github.com/Ledmington/personal/tree/main/bandwidth) is a personal C/C++ implementation of a memory bandwidth benchmark to be compared to the de-facto standard: STREAM.
 - [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [magicsquare](https://github.com/Ledmington/personal/tree/main/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
 - [mincorr](https://github.com/Ledmington/personal/tree/main/mincorr) is a little C program that finds the array with minimum correlation with a given array.
