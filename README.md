@@ -25,3 +25,4 @@ I hope you'll find something useful :)
 - [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [magicsquare](https://github.com/Ledmington/personal/tree/main/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
 - [mincorr](https://github.com/Ledmington/personal/tree/main/mincorr) is a little C program that finds the array with minimum correlation with a given array.
+- [mulper](https://github.com/Ledmington/personal/tree/main/mulper) is a little java program to find the smallest numbers with the highest multiplicative persistence.
