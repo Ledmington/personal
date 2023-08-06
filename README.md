@@ -24,5 +24,6 @@ I hope you'll find something useful :)
 - [bandwidth](https://github.com/Ledmington/personal/tree/main/bandwidth) is a personal C/C++ implementation of a memory bandwidth benchmark to be compared to the de-facto standard: STREAM.
 - [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [magicsquare](https://github.com/Ledmington/personal/tree/main/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
+- [matmul](https://github.com/Ledmington/personal/tree/main/matmul) is a little benchmark to compare the speed of a naive matrix multiplication between: C++, vectorized C++ (with google highway), Java and vectorized Java (with the Vector API)
 - [mincorr](https://github.com/Ledmington/personal/tree/main/mincorr) is a little C program that finds the array with minimum correlation with a given array.
 - [mulper](https://github.com/Ledmington/personal/tree/main/mulper) is a little java program to find the smallest numbers with the highest multiplicative persistence.
