@@ -1,7 +1,5 @@
 package diet;
 
-import java.io.IOException;
-
 public final class Main {
 
     private static void printTableau(final double[][] tab) {

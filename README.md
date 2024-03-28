@@ -11,6 +11,7 @@ I hope you'll find something useful :)
 - [word_guesser](https://github.com/Ledmington/personal/tree/main/word_guesser) is a simple C game that guesses your word through binary search.
 
 ## Algorithms and Data Structures
+- [codegen](https://github.com/Ledmington/personal/tree/main/codegen) is a personal java implementation of a simulated annealing algorithm trying to find the optimal code which solves a given problem
 - [diet](https://github.com/Ledmington/personal/tree/main/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
 - [mergesort](https://github.com/Ledmington/personal/tree/main/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
 - [necklace](https://github.com/Ledmington/personal/tree/main/necklace) is a little Python script that compares some algorithms which solve the necklace problem.
