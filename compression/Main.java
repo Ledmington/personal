@@ -229,7 +229,124 @@ final class Main {
         return applyTransformation(input, bestSubstringStart, bestSubstringLength, bestSubstringBytes, positions);
     }
 
-    private static byte[] randomInput(final int length)  {
+    private static final class ReadOnlyBitStream {
+
+        private final byte[] b;
+        private int byteIndex = 0;
+        private int bitIndex = 0;
+
+        public ReadOnlyBitStream(final byte[] b) {
+            this.b = b;
+        }
+
+        public boolean hasNext() {
+            return byteIndex < b.length;
+        }
+
+        public boolean next() {
+            final boolean x = (b[byteIndex] & (1 << bitIndex)) != 0;
+            bitIndex++;
+            if (bitIndex >= 8) {
+                bitIndex = 0;
+                byteIndex++;
+            }
+            return x;
+        }
+
+        public int bitPosition() {
+            return byteIndex * 8 + bitIndex;
+        }
+
+        public void setBitPosition(final int pos) {
+            byteIndex = pos / 8;
+            bitIndex = pos % 8;
+        }
+    }
+
+    private static byte[] compressV3(final byte[] input) {
+        System.out.println("Using algorithm v3");
+        final int inputBits = input.length * 8;
+
+        final ReadOnlyBitStream bs1 = new ReadOnlyBitStream(input);
+        final ReadOnlyBitStream bs2 = new ReadOnlyBitStream(input);
+
+        int bestSubstringStart = -1;
+        int bestSubstringLength = -1;
+        List<Integer> positions = null;
+        int bestSubstringBits = Integer.MAX_VALUE;
+
+        /*
+         * Here we are doing a bruteforce search on all possible substrings. This means
+         * that, if we find a substring of length N which is repeated K times in the
+         * file, we know for sure that there are N-1 other possible substrings shorter
+         * than N which appear at least K times in the file. Similarly, if we can't find
+         * a substring of length N repeated at least 2 times, we know for sure that no
+         * other substring of length greater than N will b repeated at least 2 times.
+         */
+        int high = inputBits / 2; // longest possible substring is half the size of the array
+        int low = 1; // the shortest possible substring is 1 byte long
+        while (low < high) {
+            int substringLength = (low + high) / 2;
+            System.out.printf("Testing length %,d\n", substringLength);
+
+            // looking for best sequence of length = substringlength
+            for (int substringStart = 0; substringStart + substringLength < inputBits; substringStart++) {
+                // our substring starts at substringStart (inclusive) and is long
+                // substringLength
+
+                // counting occurrences of this substring
+                final List<Integer> occurrences = new ArrayList<>();
+                // TODO: this can be converted into a search for the first equal byte, and then
+                // vectorized
+                for (int i = substringStart + substringLength; i + substringLength < inputBits; i++) {
+                    // our candidate subtring starts at i (inclusive) and is long substringLength
+                    bs1.setBitPosition(substringStart);
+                    bs2.setBitPosition(i);
+                    boolean areEqual = true;
+                    for (int k = 0; k < substringLength; k++) {
+                        if (bs1.next() != bs2.next()) {
+                            areEqual = false;
+                            break;
+                        }
+                    }
+                    if (areEqual) {
+                        occurrences.add(i);
+                        i += substringLength;
+                    }
+                }
+
+                if (occurrences.isEmpty()) {
+                    // this substring does not repeat
+                    high = substringLength - 1;
+                    continue;
+                }
+
+                final int newBits = 32 // length of A (in bits)
+                        + 32 // number of occurrences of A (in bits)
+                        + 32 * occurrences.size() // position of each of the occurrences (in bits)
+                        + (inputBits - (substringLength * occurrences.size())); // length of the string without all
+                                                                                // the occurrences except one
+
+                if (newBits < bestSubstringBits) {
+                    System.out.printf("Found new best start=%,d; length=%,d; occurrences=%,d; newBits=%,d\n",
+                            substringStart, substringLength, occurrences.size(), newBits);
+                    bestSubstringBits = newBits;
+                    bestSubstringStart = substringStart;
+                    bestSubstringLength = substringLength;
+                    positions = occurrences;
+                }
+
+                low = substringLength + 1;
+            }
+        }
+
+        // print("Using : ", input, bestSubstringStart, bestSubstringStart +
+        // bestSubstringLength);
+
+        return applyTransformation(input, bestSubstringStart, bestSubstringLength, bestSubstringBits, positions);
+    }
+
+    private static byte[] randomInput(final int length) {
         final RandomGenerator rng = RandomGeneratorFactory.getDefault().create(System.nanoTime());
         final byte[] input = new byte[length];
         for (int i = 0; i < input.length; i++) {
@@ -506,7 +623,7 @@ final class Main {
         for (int i = 0; i < 10; i++) {
             System.out.printf("Iteration %,d\n", i);
             // print("Input : ", input);
-            input = compressV2(input);
+            input = compressV3(input);
             // print("Output : ", input);
             System.out.printf("New length : %,d bytes\n", input.length);
         }
