@@ -7,9 +7,9 @@ import java.io.Console;
 public final class Main {
 
     private static enum Element {
-        EARTH, WATER, AIR, FIRE, LAVA, STEAM, DUST, FOAM, MUD, SEA, OCEAN,
-        ROCK, SPARKS, SWAMP, MOUNTAIN, VOLCANO, GEYSER, WAVES, TSUNAMI,
-        CLOUDS, RAIN, HEAT, SOIL, PLANT, WIND
+        EARTH, WATER, AIR, FIRE, LAVA, STEAM, DUST, FOAM, MUD, SEA, OCEAN, ROCK, SPARKS, SWAMP, MOUNTAIN, VOLCANO,
+        GEYSER, WAVES, TSUNAMI, CLOUDS, RAIN, HEAT, SOIL, PLANT, WIND, EROSION, SAND, DESERT, BEACH, ISLAND,
+        ARCHIPELAGO, CONTINENT, PLANET, ARRAKIS, PANGEA
     }
 
     private static record Pair(Element first, Element second) {
@@ -28,7 +28,7 @@ public final class Main {
             System.out.print(message);
             final String line = console.readLine().strip();
             for (final Element e : Element.values()) {
-                if (line.equalsIgnoreCase(e.name())) {
+                if (unlockedElements.contains(e) && line.equalsIgnoreCase(e.name())) {
                     el = e;
                     break;
                 }
@@ -53,10 +53,23 @@ public final class Main {
         combinations.put(new Pair(Element.EARTH, Element.FIRE), Element.LAVA);
         combinations.put(new Pair(Element.EARTH, Element.EARTH), Element.ROCK);
         combinations.put(new Pair(Element.ROCK, Element.ROCK), Element.MOUNTAIN);
+        combinations.put(new Pair(Element.ROCK, Element.WATER), Element.EROSION);
+        combinations.put(new Pair(Element.ROCK, Element.AIR), Element.EROSION);
+        combinations.put(new Pair(Element.MOUNTAIN, Element.EROSION), Element.ROCK);
         combinations.put(new Pair(Element.MOUNTAIN, Element.LAVA), Element.VOLCANO);
+        combinations.put(new Pair(Element.MOUNTAIN, Element.EARTH), Element.ISLAND);
+        combinations.put(new Pair(Element.ISLAND, Element.ISLAND), Element.ARCHIPELAGO);
+        combinations.put(new Pair(Element.ISLAND, Element.EARTH), Element.CONTINENT);
+        combinations.put(new Pair(Element.CONTINENT, Element.CONTINENT), Element.PANGEA);
+        combinations.put(new Pair(Element.CONTINENT, Element.OCEAN), Element.PLANET);
         combinations.put(new Pair(Element.WATER, Element.FIRE), Element.STEAM);
         combinations.put(new Pair(Element.STEAM, Element.EARTH), Element.GEYSER);
         combinations.put(new Pair(Element.EARTH, Element.AIR), Element.DUST);
+        combinations.put(new Pair(Element.DUST, Element.DUST), Element.SAND);
+        combinations.put(new Pair(Element.SAND, Element.SAND), Element.DESERT);
+        combinations.put(new Pair(Element.SAND, Element.SEA), Element.BEACH);
+        combinations.put(new Pair(Element.PLANET, Element.DESERT), Element.ARRAKIS);
+        combinations.put(new Pair(Element.SAND, Element.OCEAN), Element.BEACH);
         combinations.put(new Pair(Element.DUST, Element.FIRE), Element.SPARKS);
         combinations.put(new Pair(Element.WATER, Element.AIR), Element.FOAM);
         combinations.put(new Pair(Element.FOAM, Element.AIR), Element.CLOUDS);
@@ -98,14 +111,17 @@ public final class Main {
             final Element secondElement = askElement(console,
                     String.format("What do you want to merge %s with? ", firstElement.name()));
             System.out.printf("You have selected %s.\n", secondElement.name());
-            if (combinations.containsKey(new Pair(firstElement, secondElement))) {
-                final Element newElement = combinations.get(new Pair(firstElement, secondElement));
-                unlockedElements.add(newElement);
-                System.out.printf("Congratulations! You have unlocked %s!\n", newElement);
-            } else if (combinations.containsKey(new Pair(secondElement, firstElement))) {
-                final Element newElement = combinations.get(new Pair(secondElement, firstElement));
-                unlockedElements.add(newElement);
-                System.out.printf("Congratulations! You have unlocked %s!\n", newElement);
+            if (combinations.containsKey(new Pair(firstElement, secondElement))
+                    || combinations.containsKey(new Pair(secondElement, firstElement))) {
+                final Element newElement = combinations.containsKey(new Pair(firstElement, secondElement))
+                        ? combinations.get(new Pair(firstElement, secondElement))
+                        : combinations.get(new Pair(secondElement, firstElement));
+                if (!unlockedElements.contains(newElement)) {
+                    System.out.printf("Congratulations! You have unlocked %s!\n", newElement);
+                    unlockedElements.add(newElement);
+                } else {
+                    System.out.printf("These two elements produce %s but you have already unlocked it.\n", newElement);
+                }
             } else {
                 System.out.println("These two elements produce nothing.");
             }
