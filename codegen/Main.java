@@ -100,7 +100,7 @@ public final class Main {
         /*
          * This setup is to try to find a simple example of fast exponentiation.
          * We place x in a register and we want to compute
-         * x^3 and x^6 in the least amount of code possible.
+         * 5*(x+1), 10*(x+2) and 15*(x+3) in the least amount of code possible.
          * 
          * Note: this objective function can be extended to include average
          * latencies for each instruction execution and also incorporate
@@ -114,8 +114,9 @@ public final class Main {
         registers[1] = 0.0;
         registers[2] = 0.0;
         registers[3] = 0.0;
-        final double expectedResult1 = Math.pow(x, 3.0);
-        final double expectedResult2 = Math.pow(x, 6.0);
+        final double expectedResult1 = 5.0 * (x + 1.0);
+        final double expectedResult2 = 10.0 * (x + 2.0);
+        final double expectedResult3 = 15.0 * (x + 3.0);
 
         final List<Double> output = new ArrayList<>();
 
@@ -150,7 +151,7 @@ public final class Main {
         }
 
         double score = 0.0;
-        final int expectedOutputSize = 2;
+        final int expectedOutputSize = 3;
 
         if (output.size() < expectedOutputSize) {
             return Double.POSITIVE_INFINITY;
@@ -164,6 +165,10 @@ public final class Main {
             if (output.size() >= 2) {
                 final double diff2 = expectedResult2 - output.get(1);
                 score += diff2 * diff2;
+                if (output.size() >= 3) {
+                    final double diff3 = expectedResult3 - output.get(2);
+                    score += diff3 * diff3;
+                }
             }
 
             // "we want the output as soon as possible"
@@ -215,17 +220,23 @@ public final class Main {
                 newCode.remove(instructionIndex);
             }
             case MODIFY -> {
-                final Instruction inst = newCode.get(instructionIndex);
-                final Register[] newRegs = new Register[inst.regs.length];
-                System.arraycopy(inst.regs, 0, newRegs, 0, inst.regs.length);
-                final int registerIndex = rng.nextInt(0, inst.regs.length);
-                Register newReg;
-                do {
-                    newReg = Register.random();
-                } while (newReg == inst.regs[registerIndex]);
-                newRegs[registerIndex] = newReg;
-                final Instruction newInstruction = new Instruction(inst.opcode, newRegs);
-                newCode.set(instructionIndex, newInstruction);
+                if (rng.nextBoolean()) {
+                    // completely replace the instruction
+                    newCode.add(Instruction.random());
+                } else {
+                    // change one operand of the instruction
+                    final Instruction inst = newCode.get(instructionIndex);
+                    final Register[] newRegs = new Register[inst.regs.length];
+                    System.arraycopy(inst.regs, 0, newRegs, 0, inst.regs.length);
+                    final int registerIndex = rng.nextInt(0, inst.regs.length);
+                    Register newReg;
+                    do {
+                        newReg = Register.random();
+                    } while (newReg == inst.regs[registerIndex]);
+                    newRegs[registerIndex] = newReg;
+                    final Instruction newInstruction = new Instruction(inst.opcode, newRegs);
+                    newCode.set(instructionIndex, newInstruction);
+                }
             }
             case INSERT -> {
                 final Instruction newInstruction = Instruction.random();
