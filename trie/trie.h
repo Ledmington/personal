@@ -4,19 +4,19 @@
 #include <stdbool.h>
 
 typedef struct _trie {
-    struct _trie* father;
-    bool end_of_word;
-    struct _trie* sons[26];
+	struct _trie *father;
+	bool end_of_word;
+	struct _trie *sons[26];
 } TrieNode;
 
-TrieNode* trie_init ( void );
+TrieNode *trie_init(void);
 
-void trie_insert ( TrieNode *root, char *str );
+void trie_insert(TrieNode *root, char *str);
 
-long unsigned int trie_size ( TrieNode *root );
+long unsigned int trie_size(TrieNode *root);
 
-void trie_delete ( TrieNode *root );
+void trie_delete(TrieNode *root);
 
-bool trie_search ( TrieNode *root, char *str );
+bool trie_search(TrieNode *root, char *str);
 
-#endif // TRIE_H_INCLUDED
+#endif	// TRIE_H_INCLUDED
