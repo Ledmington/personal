@@ -12,6 +12,7 @@ I hope you'll find something useful :)
 - [word_guesser](https://github.com/Ledmington/personal/tree/main/word_guesser) is a simple C game that guesses your word through binary search.
 
 ## Algorithms and Data Structures
+- [buckets](https://github.com/Ledmington/personal/tree/main/buckets) is a comparison between different algorithms solving a problem which I think is NP-hard but I cannot find in the literature
 - [codegen](https://github.com/Ledmington/personal/tree/main/codegen) is a personal java implementation of a simulated annealing algorithm trying to find the optimal code which solves a given problem
 - [compression](https://github.com/Ledmington/personal/tree/main/compression) is a tentative java implementation of a simple compression algorithm
 - [diet](https://github.com/Ledmington/personal/tree/main/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
