@@ -17,6 +17,7 @@ I hope you'll find something useful :)
 - [compression](https://github.com/Ledmington/personal/tree/main/compression) is a tentative java implementation of a simple compression algorithm
 - [diet](https://github.com/Ledmington/personal/tree/main/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
 - [mergesort](https://github.com/Ledmington/personal/tree/main/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
+- [min](https://github.com/Ledmington/personal/tree/main/min) is an experimental non-deterministic minimization algorithm.
 - [necklace](https://github.com/Ledmington/personal/tree/main/necklace) is a little Python script that compares some algorithms which solve the necklace problem.
 - [poly](https://github.com/Ledmington/personal/tree/main/poly) is a java implementation of Newton's method to find roots of a polynomial in the complex plane
 - [quad_tree](https://github.com/Ledmington/personal/tree/main/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
