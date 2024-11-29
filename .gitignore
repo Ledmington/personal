@@ -2,3 +2,5 @@
 *.x
 .vscode/
 *.class
+.idea/
+out/
