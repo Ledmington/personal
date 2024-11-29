@@ -28,6 +28,7 @@ I hope you'll find something useful :)
 ## Others
 - [aliquot](https://github.com/Ledmington/personal/tree/main/aliquot) is a little java program to compute the [Aliquot sequence](https://en.wikipedia.org/wiki/Aliquot_sequence).
 - [bandwidth](https://github.com/Ledmington/personal/tree/main/bandwidth) is a personal C/C++ implementation of a memory bandwidth benchmark to be compared to the de-facto standard: [STREAM](https://www.cs.virginia.edu/stream/FTP/Code/stream.c).
+- [chem_speller](https://github.com/Ledmington/personal/tree/main/chem_speller) is a python implementation of the algorithm to spell words only with atomic symbols which doesn't cheat unlike [the original](https://www.chemspeller.com/index.html?).
 - [crawler](https://github.com/Ledmington/personal/tree/main/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [magicsquare](https://github.com/Ledmington/personal/tree/main/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
 - [matmul](https://github.com/Ledmington/personal/tree/main/matmul) is a little benchmark to compare the speed of a naive matrix multiplication between: C++, vectorized C++ (with google highway), Java and vectorized Java (with the Vector API)
