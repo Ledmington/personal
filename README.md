@@ -5,6 +5,7 @@ I hope you'll find something useful :)
 
 ## Games
 - [36_cards](https://github.com/Ledmington/personal/tree/master/36_cards) is a little Python script that calculates the probability of winning a card solitaire game called "36 cards".
+- [escaping_the_black_hole](https://github.com/Ledmington/personal/tree/master/escaping_the_black_hole) is a C++ algorithm which simulates random matches for a board game I invented (which is called "Escaping the Black Hole") in order to find the best deck composition.
 - [merge](https://github.com/Ledmington/personal/tree/master/merge) is a minimal "merge" game like [Little Alchemy](https://littlealchemy.com).
 - [orologio](https://github.com/Ledmington/personal/tree/master/orologio) is a little Python script that calculates the probability of winning a card solitaire game called "Orologio" (the clock).
 - [paroliere](https://github.com/Ledmington/personal/tree/master/paroliere) is a C implementation of a brute-force algorithm that finds all possible italian words in a game of "Paroliere" (it's very similar to Ruzzle).
