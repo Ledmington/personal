@@ -17,6 +17,7 @@ I hope you'll find something useful :)
 - [codegen](https://github.com/Ledmington/personal/tree/master/codegen) is a personal java implementation of a simulated annealing algorithm trying to find the optimal code which solves a given problem
 - [compression](https://github.com/Ledmington/personal/tree/master/compression) is a tentative java implementation of a simple compression algorithm
 - [diet](https://github.com/Ledmington/personal/tree/master/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
+- [lev](https://github.com/Ledmington/personal/tree/master/lev) is a personal C++ implementation of various algorithms to compute the Levenshtein distance and one simple command-line application to find the most similar lines in a file
 - [mergesort](https://github.com/Ledmington/personal/tree/master/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
 - [min](https://github.com/Ledmington/personal/tree/master/min) is an experimental non-deterministic minimization algorithm.
 - [necklace](https://github.com/Ledmington/personal/tree/master/necklace) is a little Python script that compares some algorithms which solve the necklace problem.
