@@ -24,7 +24,13 @@ enum class match_result : uint8_t {
 	FIRST_TURN_VICTORY,
 	END_BY_METEOR_SHOWER,
 	WIN_BY_METEOR_SHOWER,
-	MAX_TURNS_REACHED
+	MAX_ROUNDS_REACHED
+};
+
+struct match_statistics {
+	match_result result;
+	size_t num_turns;
+	size_t num_turns_without_moves;
 };
 
 std::ostream& operator<<(std::ostream& os, const match_result& mr) {
@@ -52,7 +58,8 @@ struct statistics {
 	size_t first_turn_victories;
 	size_t games_ended_by_meteor_shower;
 	size_t games_won_by_meteor_shower;
-	size_t max_turns_reached;
+	size_t MAX_ROUNDS_REACHED;
+	size_t turns_without_moves;
 };
 
 std::vector<card> create_deck(const std::unordered_map<card, size_t>& num_cards) {
@@ -71,7 +78,7 @@ std::vector<card> create_deck(const std::unordered_map<card, size_t>& num_cards)
 
 void print_deck_verbose(const std::unordered_map<card, size_t>& deck) {
 	std::ios_base::fmtflags f(std::cout.flags());
-	const std::string sep = " +-------------------------+----+";
+	const std::string sep = " +-" + std::string(max_card_name_length, '-') + "-+----+";
 	std::cout << sep << std::endl;
 	size_t total{0};
 	for (auto const& [c, num] : deck) {
@@ -95,13 +102,15 @@ void print_deck_short(const std::unordered_map<card, size_t>& deck) {
 	std::cout << "] Total: " << total << std::endl;
 }
 
-match_result simulate_match(const std::vector<card>& original_deck, const size_t n_players,
-							const size_t first_turn_cards, const size_t seed) {
+match_statistics simulate_match(const std::vector<card>& original_deck, const size_t n_players,
+								const size_t first_turn_cards, const size_t seed) {
 	assert(original_deck.size() > 0);
 	assert(n_players >= 3);
 
 	// This represents the number of "rounds"
-	constexpr size_t max_turns = 20;
+	constexpr size_t max_rounds = 20;
+	size_t turns = 1;
+	size_t turns_without_moves = 0;
 
 	std::vector<card> deck(original_deck.size());
 	std::copy(original_deck.begin(), original_deck.end(), deck.begin());
@@ -114,20 +123,20 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 	for (size_t p{0}; p < n_players; p++) {
 		game.players.at(p).state = player_state::ALIVE;
 		for (size_t i{0}; i < first_turn_cards; i++) {
-			draw_card_from_deck(game, p, rng);
+			draw_card_from_deck(game, p);
 		}
 	}
 
-	size_t turn{1};
-	for (; turn <= max_turns; turn++) {
+	size_t round{1};
+	for (; round <= max_rounds; round++) {
 		if (check_defeat_by_meteor_shower(game)) {
-			return match_result::END_BY_METEOR_SHOWER;
+			return {match_result::END_BY_METEOR_SHOWER, turns, turns_without_moves};
 		}
 		if (check_victory_by_meteor_shower(game)) {
-			return match_result::WIN_BY_METEOR_SHOWER;
+			return {match_result::WIN_BY_METEOR_SHOWER, turns, turns_without_moves};
 		}
 
-		if (turn == 1) {
+		if (round == 1) {
 			bool all_win = true;
 			for (size_t p{0}; p < n_players; p++) {
 				if (!check_victory(game, p)) {
@@ -135,7 +144,7 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 				}
 			}
 			if (all_win) {
-				return match_result::FIRST_TURN_VICTORY;
+				return {match_result::FIRST_TURN_VICTORY, turns, turns_without_moves};
 			}
 		}
 
@@ -145,9 +154,11 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 		}
 
 		for (size_t p{0}; p < n_players; p++) {
-			if (game.players.at(p).state != player_state::ALIVE) {
+			if (game.players[p].state != player_state::ALIVE) {
 				continue;
 			}
+
+			turns++;
 
 			if (game.electromagnetic_pulse.has_value() && game.electromagnetic_pulse.value() == p) {
 				game.electromagnetic_pulse = std::nullopt;
@@ -160,7 +171,9 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 				game.players.at(p).hand.clear();
 				continue;
 			}
-			draw_card_from_deck(game, p, rng);
+			if (can_draw_card(game)) {
+				draw_card_from_deck(game, p);
+			}
 
 			// Each move is represented by an index in the player's hand, or -1
 			// to "do nothing".
@@ -170,10 +183,10 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 					play_card(game, p, card::METEOR_SHOWER, rng);
 
 					if (count_alive_players(game) == 0) {
-						return match_result::END_BY_METEOR_SHOWER;
+						return {match_result::END_BY_METEOR_SHOWER, turns, turns_without_moves};
 					}
 					if (count_alive_players(game) == 1) {
-						return match_result::WIN_BY_METEOR_SHOWER;
+						return {match_result::WIN_BY_METEOR_SHOWER, turns, turns_without_moves};
 					}
 
 					// Check if this player killed himself
@@ -194,10 +207,15 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 				assert(contains(moves, -1));
 				assert(std::unordered_set<int>(moves.begin(), moves.end()).size() == moves.size());
 
+				if (moves.size() == 1) {
+					turns_without_moves++;
+				}
+
 				std::uniform_int_distribution<size_t> dist{0, moves.size() - 1};
 				move = moves.at(dist(rng));
 				assert(move == -1 || static_cast<size_t>(move) < game.players.at(p).hand.size());
 				if (move == -1) {
+					// do nothing
 				} else {
 					const card card_to_play = game.players.at(p).hand.at(static_cast<size_t>(move));
 					play_card(game, p, card_to_play, rng);
@@ -206,31 +224,31 @@ match_result simulate_match(const std::vector<card>& original_deck, const size_t
 		}
 	}
 
-	if (turn >= max_turns) {
-		return match_result::MAX_TURNS_REACHED;
+	if (round >= max_rounds) {
+		return {match_result::MAX_ROUNDS_REACHED, turns, turns_without_moves};
 	}
 
-	return match_result::NORMAL;
+	return {match_result::NORMAL, turns, turns_without_moves};
 }
 
-statistics simulate_with(const size_t n_players, const size_t matches_to_simulate, const size_t first_turn_cards,
-						 const std::vector<card>& original_deck) {
+double simulate_with(const size_t n_players, const size_t matches_to_simulate, const size_t first_turn_cards,
+					 const std::vector<card>& original_deck) {
 	assert(n_players >= 3);
-
-	// std::cout << std::endl;
-	// std::cout << "Simulating with " << n_players << " players." << std::endl;
 
 	size_t first_turn_victories = 0;
 	size_t games_ended_by_meteor_shower = 0;
 	size_t games_won_by_meteor_shower = 0;
-	size_t max_turns_reached = 0;
+	size_t max_rounds_reached = 0;
+	double avg_turns_without_moves = 0.0;
 
-#pragma omp parallel for schedule(auto) default(none)                       \
-	shared(n_players, first_turn_cards, matches_to_simulate, original_deck) \
-	reduction(+ : first_turn_victories, games_ended_by_meteor_shower, games_won_by_meteor_shower, max_turns_reached)
+#pragma omp parallel for schedule(auto) default(none)                                                                 \
+	shared(n_players, first_turn_cards, matches_to_simulate, original_deck)                                           \
+	reduction(+ : first_turn_victories, games_ended_by_meteor_shower, games_won_by_meteor_shower, max_rounds_reached, \
+				  avg_turns_without_moves)
 	for (size_t i = 0; i < matches_to_simulate; i++) {
-		const match_result result = simulate_match(original_deck, n_players, first_turn_cards, i);
-		switch (result) {
+		const size_t seed = i;
+		const match_statistics result = simulate_match(original_deck, n_players, first_turn_cards, seed);
+		switch (result.result) {
 			case match_result::FIRST_TURN_VICTORY:
 				first_turn_victories++;
 				break;
@@ -240,36 +258,26 @@ statistics simulate_with(const size_t n_players, const size_t matches_to_simulat
 			case match_result::WIN_BY_METEOR_SHOWER:
 				games_won_by_meteor_shower++;
 				break;
-			case match_result::MAX_TURNS_REACHED:
-				max_turns_reached++;
+			case match_result::MAX_ROUNDS_REACHED:
+				max_rounds_reached++;
 				break;
 			default:
 				// nothing
 				break;
 		}
+		avg_turns_without_moves +=
+			static_cast<double>(result.num_turns_without_moves) / static_cast<double>(result.num_turns);
 	}
 
-	/*
-	std::cout << " First Turn Victories:         " << std::setw(7) << first_turn_victories << " / " << std::setw(7)
-			  << matches_to_simulate << " (" << std::fixed << std::setprecision(2)
-			  << ((static_cast<double>(first_turn_victories) / static_cast<double>(matches_to_simulate)) * 100.0)
-			  << "%)." << std::endl;
-	std::cout << " Games ended by Meteor Shower: " << std::setw(7) << games_ended_by_meteor_shower << " / "
-			  << std::setw(7) << matches_to_simulate << " (" << std::fixed << std::setprecision(2)
-			  << ((static_cast<double>(games_ended_by_meteor_shower) / static_cast<double>(matches_to_simulate)) *
-				  100.0)
-			  << "%)." << std::endl;
-	std::cout << " Games won by Meteor Shower:   " << std::setw(7) << games_won_by_meteor_shower << " / "
-			  << std::setw(7) << matches_to_simulate << " (" << std::fixed << std::setprecision(2)
-			  << ((static_cast<double>(games_won_by_meteor_shower) / static_cast<double>(matches_to_simulate)) * 100.0)
-			  << "%)." << std::endl;
-	std::cout << " Games too long:               " << std::setw(7) << max_turns_reached << " / " << std::setw(7)
-			  << matches_to_simulate << " (" << std::fixed << std::setprecision(2)
-			  << ((static_cast<double>(max_turns_reached) / static_cast<double>(matches_to_simulate)) * 100.0) << "%)."
-			  << std::endl;
-			  */
+	avg_turns_without_moves /= static_cast<double>(matches_to_simulate);
 
-	return {first_turn_victories, games_ended_by_meteor_shower, games_won_by_meteor_shower, max_turns_reached};
+	const double avg_ftv = static_cast<double>(first_turn_victories) / static_cast<double>(matches_to_simulate);
+	const double avg_ebms =
+		static_cast<double>(games_ended_by_meteor_shower) / static_cast<double>(matches_to_simulate);
+	const double avg_wbms = static_cast<double>(games_won_by_meteor_shower) / static_cast<double>(matches_to_simulate);
+	const double avg_mrr = static_cast<double>(max_rounds_reached) / static_cast<double>(matches_to_simulate);
+
+	return avg_ftv + avg_ebms + avg_wbms + avg_mrr + avg_turns_without_moves;
 }
 
 double evaluate(const std::unordered_map<card, size_t>& num_cards, const size_t num_players) {
@@ -277,21 +285,14 @@ double evaluate(const std::unordered_map<card, size_t>& num_cards, const size_t 
 
 	// TODO: change this to be optimized as well
 	const size_t first_turn_cards = 5;
-	const size_t matches_to_simulate = 100'000;
+	const size_t matches_to_simulate = 1'000'000;
 
-	// std::cout << std::endl;
-	// std::cout << "Cards to draw on first turn: " << first_turn_cards << "." << std::endl;
-	// std::cout << std::endl;
-	// print_deck_short(num_cards);
-
-	const statistics stats = simulate_with(num_players, matches_to_simulate, first_turn_cards, deck);
-
-	return static_cast<double>(stats.first_turn_victories + stats.games_ended_by_meteor_shower +
-							   stats.games_won_by_meteor_shower + stats.max_turns_reached);
+	return simulate_with(num_players, matches_to_simulate, first_turn_cards, deck);
 }
 
 void search(const std::unordered_map<card, size_t>& starting_point,
-			std::unordered_map<card, std::pair<size_t, size_t>>& limits, const size_t starting_players) {
+			std::unordered_map<card, std::pair<size_t, size_t>>& limits, const size_t min_cards, const size_t max_cards,
+			const size_t starting_players) {
 	assert(starting_players >= 3 && starting_players <= 6);
 #ifndef NDEBUG
 	for (const auto& [c, num] : starting_point) {
@@ -305,15 +306,18 @@ void search(const std::unordered_map<card, size_t>& starting_point,
 
 	std::unordered_map<card, size_t> x = starting_point;
 	double fx = evaluate(x, starting_players);
+	std::cout << "Score of initial configuration: " << fx << std::endl;
 	constexpr size_t max_attempts = 100;
 
 	for (size_t attempt{0}; attempt < max_attempts; attempt++) {
 		std::unordered_map<card, size_t> y = x;
+		const size_t total_cards =
+			std::accumulate(y.begin(), y.end(), 0, [](size_t sum, const auto& pair) { return sum + pair.second; });
 		card card_to_change;
 		int step = 0;
 		double best_fy = std::numeric_limits<double>::infinity();
 		for (const auto& [c, num] : y) {
-			if (num < limits[c].second) {
+			if (num < limits[c].second && total_cards < max_cards) {
 				y[c]++;
 				// TODO: change also the number of players
 				const double fy_forward = evaluate(y, starting_players);
@@ -326,7 +330,7 @@ void search(const std::unordered_map<card, size_t>& starting_point,
 				}
 			}
 
-			if (num > limits[c].first) {
+			if (num > limits[c].first && total_cards > min_cards) {
 				y[c]--;
 				// TODO: change also the number of players
 				const double fy_back = evaluate(y, starting_players);
@@ -347,7 +351,7 @@ void search(const std::unordered_map<card, size_t>& starting_point,
 			std::ios_base::fmtflags f(std::cout.flags());
 			std::cout << "Step " << std::setw(3) << attempt << "/" << max_attempts << ": " << (step > 0 ? '+' : '-')
 					  << std::abs(step) << " " << std::setw(max_card_name_length) << std::left << card_to_change
-					  << " (score: " << std::setw(6) << fx << ")" << std::endl;
+					  << " (score: " << std::setw(6) << std::right << fx << ")" << std::endl;
 			std::cout.flags(f);
 		} else {
 			break;
@@ -392,6 +396,8 @@ int main(int argc, const char**) {
 	};
 
 	// Limits
+	constexpr size_t min_cards = 60;
+	constexpr size_t max_cards = 90;
 	std::unordered_map<card, std::pair<size_t, size_t>> limits{
 		{card::SUPPLIES, {1, 10}},
 		{card::MISSILES, {1, 10}},
@@ -414,7 +420,7 @@ int main(int argc, const char**) {
 		{card::ESPIONAGE, {1, 10}},
 	};
 
-	search(num_cards, limits, 4);
+	search(num_cards, limits, min_cards, max_cards, 4);
 
 	return 0;
 }

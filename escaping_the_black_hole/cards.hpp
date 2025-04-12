@@ -22,7 +22,7 @@ enum class card : uint8_t {
 
 	/**
 	 * Play this card as soon as you draw it from the deck. Everybody needs to
-	 * discard an engine of any kind of they lose.
+	 * discard an engine of any kind otherwise they lose.
 	 */
 	METEOR_SHOWER,
 

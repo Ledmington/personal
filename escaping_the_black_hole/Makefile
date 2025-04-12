@@ -1,7 +1,7 @@
 CXX=g++
 CXXFLAGS=-std=c++17 -Wall -Wextra -Wpedantic -Werror -Wshadow -fno-exceptions -fno-rtti -fopenmp
 DEBUG_FLAGS=-O0 -g
-OPTFLAGS=-O3 -DNDEBUG -march=native -mtune=native
+OPTFLAGS=-O3 -DNDEBUG -g -march=native -mtune=native
 EXE_NAME=escaping_the_black_hole.x
 
 all: debug

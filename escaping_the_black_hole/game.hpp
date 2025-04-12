@@ -16,7 +16,7 @@ struct game_state {
 size_t count_engines(const std::vector<card>& hand) {
 	size_t count = 0;
 	for (size_t i{0}; i < hand.size(); i++) {
-		if (hand.at(i) == card::COMBUSTION_ENGINE || hand.at(i) == card::ELECTRIC_ENGINE) {
+		if (hand[i] == card::COMBUSTION_ENGINE || hand[i] == card::ELECTRIC_ENGINE) {
 			count++;
 		}
 	}
@@ -27,7 +27,7 @@ bool check_victory_by_meteor_shower(const game_state& game) {
 	assert(game.players.size() > 0);
 	bool has_meteor_shower = false;
 	for (size_t p{0}; p < game.players.size(); p++) {
-		if (game.players.at(p).state == player_state::ALIVE && contains(game.players.at(p).hand, card::METEOR_SHOWER)) {
+		if (game.players[p].state == player_state::ALIVE && contains(game.players[p].hand, card::METEOR_SHOWER)) {
 			has_meteor_shower = true;
 			break;
 		}
@@ -47,11 +47,7 @@ bool check_victory_by_meteor_shower(const game_state& game) {
 
 	// A game is considered "won" by a meteor shower if all players get
 	// eliminated by it except one.
-	if (n_total_engines == 1) {
-		return true;
-	} else {
-		return false;
-	}
+	return n_total_engines == 1;
 }
 
 bool check_defeat_by_meteor_shower(const game_state& game) {
@@ -79,11 +75,7 @@ bool check_defeat_by_meteor_shower(const game_state& game) {
 	// are not enough engines for the players.
 	// This is an optimal situation so this probability is to be
 	// considered an upper-bound.
-	if (n_total_engines == 0) {
-		return true;
-	} else {
-		return false;
-	}
+	return n_total_engines == 0;
 }
 
 bool check_victory(const game_state& game, const size_t current_player_index) {
@@ -91,48 +83,55 @@ bool check_victory(const game_state& game, const size_t current_player_index) {
 
 	const std::vector<card>& hand = game.players.at(current_player_index).hand;
 
+	size_t n_computers{0};
+	size_t n_quantum_computers{0};
+	size_t n_fuel_cells{0};
+	size_t n_solar_panels{0};
+	size_t n_combustion_engines{0};
+	size_t n_electric_engines{0};
+
 	for (size_t p{0}; p < hand.size(); p++) {
-		const size_t n_computers = count(hand, card::COMPUTER);
-		const size_t n_quantum_computers = count(hand, card::QUANTUM_COMPUTER);
-		const size_t n_fuel_cells = count(hand, card::FUEL_CELL);
-		const size_t n_solar_panels = count(hand, card::SOLAR_PANELS);
-		const size_t n_combustion_engines = count(hand, card::COMBUSTION_ENGINE);
-		const size_t n_electric_engines = count(hand, card::ELECTRIC_ENGINE);
+		switch (hand[p]) {
+			case card::COMPUTER:
+				n_computers++;
+				break;
+			case card::QUANTUM_COMPUTER:
+				n_quantum_computers++;
+				break;
+			case card::FUEL_CELL:
+				n_fuel_cells++;
+				break;
+			case card::SOLAR_PANELS:
+				n_solar_panels++;
+				break;
+			case card::COMBUSTION_ENGINE:
+				n_combustion_engines++;
+				break;
+			case card::ELECTRIC_ENGINE:
+				n_electric_engines++;
+				break;
+			default:
+				// nothing
+				break;
+		}
+	}
 
-		// Temporary to ease victory checking
-		const size_t energy = 2 * n_fuel_cells + n_solar_panels;
+	// Temporary to ease victory checking
+	const size_t energy = 2 * n_fuel_cells + n_solar_panels;
 
-		// Checking First Turn Victories
-		// WARNING: this check works only if each player draws at least 4
-		// cards since the winning combination with the least amount of
-		// cards is Combustion Engine, Computer and 2 Fuel Cells.
-		if ((n_computers >= 1 && n_combustion_engines >= 1 && energy >= 4) ||
+	// Checking First Turn Victories
+	// WARNING: this check works only if each player draws at least 4
+	// cards since the winning combination with the least amount of
+	// cards is Combustion Engine, Computer and 2 Fuel Cells.
+	return ((n_computers >= 1 && n_combustion_engines >= 1 && energy >= 4) ||
 			(n_computers >= 1 && n_electric_engines >= 3) ||
 			(n_quantum_computers >= 1 && n_combustion_engines >= 1 && energy >= 6) ||
-			(n_quantum_computers >= 1 && n_electric_engines >= 3 && energy >= 2)) {
-			return true;
-		}
-	}
-
-	return false;
+			(n_quantum_computers >= 1 && n_electric_engines >= 3 && energy >= 2));
 }
 
-void draw_card_from_deck(game_state& game, const size_t current_player_index, std::mt19937& rnd) {
+void draw_card_from_deck(game_state& game, const size_t current_player_index) {
 	assert(current_player_index < game.players.size());
 	assert(game.players.at(current_player_index).state == player_state::ALIVE);
-
-	// The player to pick up the last card in the deck, shuffles the discard
-	// pile and puts it as the deck
-	if (game.deck.size() == 0) {
-		assert(game.discard_pile.size() > 0);
-
-		std::shuffle(game.discard_pile.begin(), game.discard_pile.end(), rnd);
-		for (size_t i{0}; i < game.discard_pile.size(); i++) {
-			game.deck.push_back(game.discard_pile.at(i));
-		}
-		game.discard_pile.clear();
-	}
-
 	assert(game.deck.size() > 0);
 
 	const card c = game.deck.at(0);
@@ -190,10 +189,8 @@ bool is_card_playable(const game_state& game, const size_t current_player_index,
 			// there is at least one other player with at least one card.
 		case card::EXCHANGE_OF_INFORMATION:
 		case card::BARTER:
-			if (game.players.at(current_player_index).hand.size() < 2) {
-				return false;
-			}
-			return is_there_one_player_with_at_least_one_card(game, current_player_index);
+			return game.players.at(current_player_index).hand.size() >= 2 &&
+				   is_there_one_player_with_at_least_one_card(game, current_player_index);
 
 			// These cards need at least one player (not the current one) with
 			// at least one card in hand
@@ -211,8 +208,8 @@ bool is_card_playable(const game_state& game, const size_t current_player_index,
 
 			size_t count = 0;
 			for (size_t p{0}; p < game.players.size(); p++) {
-				if (game.players.at(p).state == player_state::ALIVE && p != current_player_index &&
-					game.players.at(p).hand.size() >= 1) {
+				if (game.players[p].state == player_state::ALIVE && p != current_player_index &&
+					game.players[p].hand.size() >= 1) {
 					count++;
 				}
 			}
@@ -245,6 +242,8 @@ std::vector<size_t> get_players_with_at_least_one_card(const game_state& game, c
 	return possible_players;
 }
 
+bool can_draw_card(const game_state& game) { return game.deck.size() > 0; }
+
 void play_card(game_state& game, const size_t current_player_index, const card& c, std::mt19937& rnd) {
 	assert(game.players.at(current_player_index).state == player_state::ALIVE);
 	assert(contains(game.players.at(current_player_index).hand, c));
@@ -261,7 +260,9 @@ void play_card(game_state& game, const size_t current_player_index, const card& 
 					continue;
 				}
 
-				draw_card_from_deck(game, idx, rnd);
+				if (can_draw_card(game)) {
+					draw_card_from_deck(game, idx);
+				}
 			}
 		} break;
 
@@ -418,7 +419,9 @@ void play_card(game_state& game, const size_t current_player_index, const card& 
 			assert(contains(game.players.at(current_player_index).hand, card::SCRAP));
 			remove_from(game.players.at(current_player_index).hand, card::SCRAP);
 			game.discard_pile.push_back(card::SCRAP);
-			draw_card_from_deck(game, current_player_index, rnd);
+			if (can_draw_card(game)) {
+				draw_card_from_deck(game, current_player_index);
+			}
 			break;
 
 		case card::SWAP: {
