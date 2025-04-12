@@ -1,9 +1,9 @@
 #pragma once
 
-#include <cstdint>
 #include <array>
-#include <vector>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 #include "cards.hpp"
 

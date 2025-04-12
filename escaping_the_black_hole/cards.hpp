@@ -1,8 +1,11 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
 #include <cstdint>
-#include <string>
+#include <functional>
 #include <random>
+#include <string>
 #include <vector>
 
 enum class card : uint8_t {
@@ -114,6 +117,28 @@ enum class card : uint8_t {
 	ESPIONAGE
 };
 
+constexpr std::array<card, 19> all_cards = {
+	card::SUPPLIES,
+	card::MISSILES,
+	card::METEOR_SHOWER,
+	card::BARTER,
+	card::FUEL_CELL,
+	card::COMPUTER,
+	card::QUANTUM_COMPUTER,
+	card::SWAP,
+	card::ELECTROMAGNETIC_PULSE,
+	card::THREAT,
+	card::COMBUSTION_ENGINE,
+	card::ELECTRIC_ENGINE,
+	card::SOLAR_PANELS,
+	card::LASER_GUN,
+	card::FREE_REPAIR,
+	card::SCRAP,
+	card::EXCHANGE_OF_INFORMATION,
+	card::ENERGY_SHIELD,
+	card::ESPIONAGE,
+};
+
 std::ostream& operator<<(std::ostream& os, const card c) {
 	switch (c) {
 		case card::SUPPLIES:
@@ -177,31 +202,18 @@ std::ostream& operator<<(std::ostream& os, const card c) {
 	return os;
 }
 
+const size_t max_card_name_length = std::transform_reduce(
+	all_cards.cbegin(), all_cards.cend(), 0, [](size_t a, size_t b) { return std::max(a, b); },
+	[](const card& c) {
+		std::ostringstream oss;
+		oss << c;
+		return oss.str().length();
+	});
+
 /**
  * Returns a random card from all that can exist.
  */
 card random_card(std::mt19937& rnd) {
-	std::vector<card> cards{
-		card::SUPPLIES,
-		card::MISSILES,
-		card::METEOR_SHOWER,
-		card::BARTER,
-		card::FUEL_CELL,
-		card::COMPUTER,
-		card::QUANTUM_COMPUTER,
-		card::SWAP,
-		card::ELECTROMAGNETIC_PULSE,
-		card::THREAT,
-		card::COMBUSTION_ENGINE,
-		card::ELECTRIC_ENGINE,
-		card::SOLAR_PANELS,
-		card::LASER_GUN,
-		card::FREE_REPAIR,
-		card::SCRAP,
-		card::EXCHANGE_OF_INFORMATION,
-		card::ENERGY_SHIELD,
-		card::ESPIONAGE,
-	};
-	std::uniform_int_distribution<size_t> dist{0, cards.size() - 1};
-	return cards.at(dist(rnd));
+	std::uniform_int_distribution<size_t> dist{0, all_cards.size() - 1};
+	return all_cards.at(dist(rnd));
 }

@@ -3,6 +3,9 @@
 #include <optional>
 #include <vector>
 
+#include "players.hpp"
+#include "utils.hpp"
+
 struct game_state {
 	std::vector<card> deck;
 	std::vector<card> discard_pile;
@@ -22,10 +25,6 @@ size_t count_engines(const std::vector<card>& hand) {
 
 bool check_victory_by_meteor_shower(const game_state& game) {
 	assert(game.players.size() > 0);
-#if defined(LOGGING) && LOGGING == 1
-	std::cout << "Checking for victory by meteor shower ... " << std::flush;
-#endif	// LOGGING
-
 	bool has_meteor_shower = false;
 	for (size_t p{0}; p < game.players.size(); p++) {
 		if (game.players.at(p).state == player_state::ALIVE && contains(game.players.at(p).hand, card::METEOR_SHOWER)) {
@@ -35,9 +34,6 @@ bool check_victory_by_meteor_shower(const game_state& game) {
 	}
 
 	if (!has_meteor_shower) {
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "none." << std::endl;
-#endif	// LOGGING
 		return false;
 	}
 
@@ -52,23 +48,13 @@ bool check_victory_by_meteor_shower(const game_state& game) {
 	// A game is considered "won" by a meteor shower if all players get
 	// eliminated by it except one.
 	if (n_total_engines == 1) {
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "yes." << std::endl;
-#endif	// LOGGING
 		return true;
 	} else {
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "none." << std::endl;
-#endif	// LOGGING
 		return false;
 	}
 }
 
 bool check_defeat_by_meteor_shower(const game_state& game) {
-#if defined(LOGGING) && LOGGING == 1
-	std::cout << "Checking for defeat by meteor shower ... " << std::flush;
-#endif	// LOGGING
-
 	bool has_meteor_shower = false;
 	for (size_t p{0}; p < game.players.size(); p++) {
 		if (game.players.at(p).state == player_state::ALIVE && contains(game.players.at(p).hand, card::METEOR_SHOWER)) {
@@ -78,9 +64,6 @@ bool check_defeat_by_meteor_shower(const game_state& game) {
 	}
 
 	if (!has_meteor_shower) {
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "none." << std::endl;
-#endif	// LOGGING
 		return false;
 	}
 
@@ -97,23 +80,14 @@ bool check_defeat_by_meteor_shower(const game_state& game) {
 	// This is an optimal situation so this probability is to be
 	// considered an upper-bound.
 	if (n_total_engines == 0) {
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "yes." << std::endl;
-#endif	// LOGGING
 		return true;
 	} else {
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "none." << std::endl;
-#endif	// LOGGING
 		return false;
 	}
 }
 
 bool check_victory(const game_state& game, const size_t current_player_index) {
 	assert(game.players.at(current_player_index).state == player_state::ALIVE);
-#if defined(LOGGING) && LOGGING == 1
-	std::cout << "  Checking for victory ... " << std::flush;
-#endif	// LOGGING
 
 	const std::vector<card>& hand = game.players.at(current_player_index).hand;
 
@@ -136,15 +110,9 @@ bool check_victory(const game_state& game, const size_t current_player_index) {
 			(n_computers >= 1 && n_electric_engines >= 3) ||
 			(n_quantum_computers >= 1 && n_combustion_engines >= 1 && energy >= 6) ||
 			(n_quantum_computers >= 1 && n_electric_engines >= 3 && energy >= 2)) {
-#if defined(LOGGING) && LOGGING == 1
-			std::cout << "player " << p << " (" << players_names.at(p) << ") is saved." << std::endl;
-#endif	// LOGGING
 			return true;
 		}
 	}
-#if defined(LOGGING) && LOGGING == 1
-	std::cout << "none." << std::endl;
-#endif	// LOGGING
 
 	return false;
 }
@@ -157,11 +125,6 @@ void draw_card_from_deck(game_state& game, const size_t current_player_index, st
 	// pile and puts it as the deck
 	if (game.deck.size() == 0) {
 		assert(game.discard_pile.size() > 0);
-
-#if defined(LOGGING) && LOGGING == 1
-		std::cout << "  Deck has no more cards, " << players_names.at(current_player_index)
-				  << " shuffles the discard pile." << std::endl;
-#endif	// LOGGING
 
 		std::shuffle(game.discard_pile.begin(), game.discard_pile.end(), rnd);
 		for (size_t i{0}; i < game.discard_pile.size(); i++) {
@@ -427,27 +390,15 @@ void play_card(game_state& game, const size_t current_player_index, const card& 
 
 				bool saved = false;
 				if (contains(game.players.at(p).hand, card::COMBUSTION_ENGINE)) {
-#if defined(LOGGING) && LOGGING == 1
-					std::cout << "  " << players_names.at(p) << " discards a " << card::COMBUSTION_ENGINE << "."
-							  << std::endl;
-#endif	// LOGGING
 					remove_from(game.players.at(p).hand, card::COMBUSTION_ENGINE);
 					game.discard_pile.push_back(card::COMBUSTION_ENGINE);
 					saved = true;
 				} else if (contains(game.players.at(p).hand, card::ELECTRIC_ENGINE)) {
-#if defined(LOGGING) && LOGGING == 1
-					std::cout << "  " << players_names.at(p) << " discards a " << card::ELECTRIC_ENGINE << "."
-							  << std::endl;
-#endif	// LOGGING
 					remove_from(game.players.at(p).hand, card::ELECTRIC_ENGINE);
 					game.discard_pile.push_back(card::ELECTRIC_ENGINE);
 					saved = true;
 				}
 				if (!saved) {
-#if defined(LOGGING) && LOGGING == 1
-					std::cout << "  " << ANSI_RED << players_names.at(p) << " eliminated" << ANSI_RESET << "."
-							  << std::endl;
-#endif	// LOGGING
 					game.players.at(p).state = player_state::DEAD;
 					for (const card& crd : game.players.at(p).hand) {
 						game.discard_pile.push_back(crd);

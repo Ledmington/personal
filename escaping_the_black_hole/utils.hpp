@@ -1,8 +1,8 @@
 #pragma once
 
+#include <random>
 #include <string>
 #include <vector>
-#include <random>
 
 template <typename T>
 std::string get_string(const std::vector<T>& v) {
@@ -21,7 +21,7 @@ std::string get_string(const std::vector<T>& v) {
 template <typename T>
 bool contains(const std::vector<T>& v, const T& x) {
 	for (size_t i{0}; i < v.size(); i++) {
-		if (v.at(i) == x) {
+		if (v[i] == x) {
 			return true;
 		}
 	}
