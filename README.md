@@ -36,3 +36,4 @@ I hope you'll find something useful :)
 - [matmul](https://github.com/Ledmington/personal/tree/master/matmul) is a little benchmark to compare the speed of a naive matrix multiplication between: C++, vectorized C++ (with google highway), Java and vectorized Java (with the Vector API)
 - [mincorr](https://github.com/Ledmington/personal/tree/master/mincorr) is a little C program that finds the array with minimum correlation with a given array.
 - [mulper](https://github.com/Ledmington/personal/tree/master/mulper) is a little java program to find the smallest numbers with the highest multiplicative persistence.
+- [multiply_strings](https://github.com/Ledmington/personal/tree/master/multiply_strings) is a little experiment with the concept of "multiplying strings".
