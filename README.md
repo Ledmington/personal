@@ -17,6 +17,7 @@ I hope you'll find something useful :)
 - [codegen](https://github.com/Ledmington/personal/tree/master/codegen) is a personal java implementation of a simulated annealing algorithm trying to find the optimal code which solves a given problem
 - [compression](https://github.com/Ledmington/personal/tree/master/compression) is a tentative java implementation of a simple compression algorithm
 - [diet](https://github.com/Ledmington/personal/tree/master/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
+- [kmeans](https://github.com/Ledmington/personal/tree/master/kmeans) is a little Rust implementation of the K-Means algorithm with plot generation.
 - [lev](https://github.com/Ledmington/personal/tree/master/lev) is a personal C++ implementation of various algorithms to compute the Levenshtein distance and one simple command-line application to find the most similar lines in a file
 - [mergesort](https://github.com/Ledmington/personal/tree/master/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
 - [min](https://github.com/Ledmington/personal/tree/master/min) is an experimental non-deterministic minimization algorithm.
@@ -33,7 +34,6 @@ I hope you'll find something useful :)
 - [chem_speller](https://github.com/Ledmington/personal/tree/master/chem_speller) is a python implementation of the algorithm to spell words only with atomic symbols which doesn't cheat unlike [the original](https://www.chemspeller.com/index.html?).
 - [crawler](https://github.com/Ledmington/personal/tree/master/crawler) is a little Python script that randomly explores all web pages, starting from one link and looking for new URLs inside the HTML code received.
 - [gitstats](https://github.com/Ledmington/personal/tree/master/gitstats) is a little Rust program which generates a plot with the number of files and lines of code over time in a git repository.
-- [kmeans](https://github.com/Ledmington/personal/tree/master/kmeans) is a little Rust implementation of the K-Means algorithm with plot generation.
 - [magicsquare](https://github.com/Ledmington/personal/tree/master/magicsquare) is a parallel C+OpenMP program that searches non-trivial magic squares.
 - [matmul](https://github.com/Ledmington/personal/tree/master/matmul) is a little benchmark to compare the speed of a naive matrix multiplication between: C++, vectorized C++ (with google highway), Java and vectorized Java (with the Vector API)
 - [mincorr](https://github.com/Ledmington/personal/tree/master/mincorr) is a little C program that finds the array with minimum correlation with a given array.
