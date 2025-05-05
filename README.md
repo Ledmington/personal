@@ -14,6 +14,7 @@ I hope you'll find something useful :)
 
 ## Algorithms and Data Structures
 - [buckets](https://github.com/Ledmington/personal/tree/master/buckets) is a comparison between different algorithms solving a problem which I think is NP-hard but I cannot find in the literature
+- [cg](https://github.com/Ledmington/personal/tree/master/buckets) is a personal Rust implementation of the Conjugate Gradient method and an attempt to make it more stable by using the Kahan sum in the dot product
 - [codegen](https://github.com/Ledmington/personal/tree/master/codegen) is a personal java implementation of a simulated annealing algorithm trying to find the optimal code which solves a given problem
 - [compression](https://github.com/Ledmington/personal/tree/master/compression) is a tentative java implementation of a simple compression algorithm
 - [diet](https://github.com/Ledmington/personal/tree/master/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
