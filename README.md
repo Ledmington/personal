@@ -14,9 +14,9 @@ I hope you'll find something useful :)
 
 ## Algorithms and Data Structures
 - [buckets](https://github.com/Ledmington/personal/tree/master/buckets) is a comparison between different algorithms solving a problem which I think is NP-hard but I cannot find in the literature
-- [cg](https://github.com/Ledmington/personal/tree/master/buckets) is a personal Rust implementation of the Conjugate Gradient method and an attempt to make it more stable by using the Kahan sum in the dot product
 - [codegen](https://github.com/Ledmington/personal/tree/master/codegen) is a personal java implementation of a simulated annealing algorithm trying to find the optimal code which solves a given problem
 - [compression](https://github.com/Ledmington/personal/tree/master/compression) is a tentative java implementation of a simple compression algorithm
+- [conjugate_gradient](https://github.com/Ledmington/personal/tree/master/conjugate_gradient) is a personal Rust implementation of the [Conjugate Gradient method](https://en.wikipedia.org/wiki/Conjugate_gradient_method) and an attempt to make it more stable by using the [Kahan sum](https://en.wikipedia.org/wiki/Kahan_summation_algorithm) in the dot product
 - [cuthill_mckee](https://github.com/Ledmington/personal/tree/master/cuthill_mckee) is a personal Rust implementation and visualization of the [Cuthill-McKee algorithm](https://en.wikipedia.org/wiki/Cuthill%E2%80%93McKee_algorithm)
 - [diet](https://github.com/Ledmington/personal/tree/master/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
 - [disk_bench](https://github.com/Ledmington/personal/tree/master/disk_bench) is a comparison of different disk scheduling algorithms in Rust
