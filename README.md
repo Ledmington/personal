@@ -22,6 +22,7 @@ I hope you'll find something useful :)
 - [disk_bench](https://github.com/Ledmington/personal/tree/master/disk_bench) is a comparison of different disk scheduling algorithms in Rust
 - [kmeans](https://github.com/Ledmington/personal/tree/master/kmeans) is a little Rust implementation of the K-Means algorithm with plot generation.
 - [lev](https://github.com/Ledmington/personal/tree/master/lev) is a personal C++ implementation of various algorithms to compute the Levenshtein distance and one simple command-line application to find the most similar lines in a file
+- [linear_regression](https://github.com/Ledmington/personal/tree/master/linear_regression) is a personal Rust implementation of a linear regressor with a plot of the dataset
 - [mergesort](https://github.com/Ledmington/personal/tree/master/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
 - [min](https://github.com/Ledmington/personal/tree/master/min) is an experimental non-deterministic minimization algorithm.
 - [necklace](https://github.com/Ledmington/personal/tree/master/necklace) is a little Python script that compares some algorithms which solve the necklace problem.
