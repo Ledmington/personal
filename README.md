@@ -26,6 +26,7 @@ I hope you'll find something useful :)
 - [mergesort](https://github.com/Ledmington/personal/tree/master/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
 - [min](https://github.com/Ledmington/personal/tree/master/min) is an experimental non-deterministic minimization algorithm.
 - [necklace](https://github.com/Ledmington/personal/tree/master/necklace) is a little Python script that compares some algorithms which solve the necklace problem.
+- [pca](https://github.com/Ledmington/personal/tree/master/pca) is a personal Rust implementation of a simple algorithm to compute the principal component analysis on an hypercube, project it onto 2d space and then plot it
 - [poly](https://github.com/Ledmington/personal/tree/master/poly) is a java implementation of Newton's method to find roots of a polynomial in the complex plane
 - [quad_tree](https://github.com/Ledmington/personal/tree/master/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
 - [queue](https://github.com/Ledmington/personal/tree/master/queue) contains my personal implementation of Circular Queue with Fixed Size (CQFS, for short) with tests and a little benchmark.
