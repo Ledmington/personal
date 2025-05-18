@@ -571,6 +571,7 @@ final class Main {
             input = compressV4(input);
             // print("Output : ", input);
             System.out.printf("New length : %,d bytes\n", input.length);
+            System.out.println();
         }
     }
 }
