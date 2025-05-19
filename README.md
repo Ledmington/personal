@@ -21,6 +21,7 @@ I hope you'll find something useful :)
 - [diet](https://github.com/Ledmington/personal/tree/master/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
 - [disk_bench](https://github.com/Ledmington/personal/tree/master/disk_bench) is a comparison of different disk scheduling algorithms in Rust
 - [kmeans](https://github.com/Ledmington/personal/tree/master/kmeans) is a little Rust implementation of the K-Means algorithm with plot generation.
+- [kruskal_clustering](https://github.com/Ledmington/personal/tree/master/kruskal_clustering) is a Rust implementation of a simple clustering algorithm based on Kruskal's algorithm for the minimum vertex cover.
 - [lev](https://github.com/Ledmington/personal/tree/master/lev) is a personal C++ implementation of various algorithms to compute the Levenshtein distance and one simple command-line application to find the most similar lines in a file
 - [linear_regression](https://github.com/Ledmington/personal/tree/master/linear_regression) is a personal Rust implementation of a linear regressor with a plot of the dataset
 - [mergesort](https://github.com/Ledmington/personal/tree/master/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.
