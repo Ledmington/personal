@@ -31,6 +31,7 @@ I hope you'll find something useful :)
 - [poly](https://github.com/Ledmington/personal/tree/master/poly) is a java implementation of Newton's method to find roots of a polynomial in the complex plane
 - [quad_tree](https://github.com/Ledmington/personal/tree/master/quad-tree) is a performance comparison between serial and parallel implementations of the naive algorithm and a quad-tree when counting the collisions between some 2D circles.
 - [queue](https://github.com/Ledmington/personal/tree/master/queue) contains my personal implementation of Circular Queue with Fixed Size (CQFS, for short) with tests and a little benchmark.
+- [simulated_annealing](https://github.com/Ledmington/personal/tree/master/simulated_annealing) contains a personal Rust implementation of the Simulated Annealing algorithm applied to the Rosenbrock function, along with a plot of its journey.
 - [trie](https://github.com/Ledmington/personal/tree/master/trie) is a C implementation of the "Trie" data structure.
 - [xor](https://github.com/Ledmington/personal/tree/master/xor) contains the 128, 256 and 512-bit implementations of the simple XOR hash algorithm.
 
