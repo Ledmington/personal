@@ -56,61 +56,92 @@ RESULT_TYPE stddev(const RESULT_TYPE *values, const size_t length,
 }
 
 RESULT_TYPE format_bytes(RESULT_TYPE b) {
+	while (b >= 1000) {
+		b /= 1000;
+	}
+	return b;
+}
+
+const char* biggest_byte_unit_for(RESULT_TYPE b) {
+	RESULT_TYPE bytes = b;
+	if (bytes < 1000) {
+		return "B";
+	}
+	bytes /= 1000;
+	if (bytes < 1000) {
+		return "KB";
+	}
+	bytes /= 1000;
+	if (bytes < 1000) {
+		return "MB";
+	}
+	bytes /= 1000;
+	if (bytes < 1000) {
+		return "GB";
+	}
+	return "TB";
+}
+
+RESULT_TYPE format_binary_bytes(RESULT_TYPE b) {
 	while (b >= 1024) {
 		b /= 1024;
 	}
 	return b;
 }
 
-const char *biggest_byte_unit_for(RESULT_TYPE b) {
+const char* biggest_binary_byte_unit_for(RESULT_TYPE b) {
 	RESULT_TYPE bytes = b;
 	if (bytes < 1024) {
 		return "B";
 	}
 	bytes /= 1024;
 	if (bytes < 1024) {
-		return "KB";
+		return "KiB";
 	}
 	bytes /= 1024;
 	if (bytes < 1024) {
-		return "MB";
+		return "MiB";
 	}
 	bytes /= 1024;
 	if (bytes < 1024) {
-		return "GB";
+		return "GiB";
 	}
-	return "TB";
+	return "TiB";
 }
 
 DATA_TYPE randab(const DATA_TYPE a, const DATA_TYPE b) {
 	return (DATA_TYPE)rand() / (DATA_TYPE)RAND_MAX * (b - a) + a;
 }
 
-// returns time in seconds
-double timer() {
-	struct timeval tp;
-	struct timezone tzp;
-
-	gettimeofday(&tp, &tzp);
-	return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
+// returns time in nanoseconds
+uint64_t timer_ns() {
+	struct timespec t;
+	clock_gettime(CLOCK_MONOTONIC, &t);
+	return t.tv_sec * 1000000000 + t.tv_nsec;
 }
 
-int timer_precision() {
-	double times[1000];
+// returns time in seconds
+double timer() {
+	return (double)timer_ns() / 1000000.0;
+}
 
-	for (int i = 0; i < 1000; i++) {
-		double t1 = timer();
-		while (timer() == t1) {
+uint64_t timer_precision() {
+	const uint32_t size = 1000000;
+	uint64_t times[size];
+
+	for (uint32_t i = 0; i < size; i++) {
+		times[i] = timer_ns();
+	}
+
+	uint64_t min = ~0;
+	for (uint32_t i = 0; i < size - 1; i++) {
+		const uint64_t diff = times[i+1] - times[i];
+		if(diff > 0) {
+			min = MIN(min, diff);
 		}
-		times[i] = timer() - t1;
 	}
 
-	double min = 2e9;
-	for (int i = 0; i < 1000; i++) {
-		min = MIN(min, times[i]);
-	}
-
-	return (int)(min * 1e9);
+	return min;
 }
 
 int main(const int argc, const char **argv) {
@@ -134,12 +165,14 @@ int main(const int argc, const char **argv) {
 			COMPILER_MAJOR, COMPILER_MINOR, COMPILER_PATCH, __DATE__, __TIME__);
 	fprintf(stdout, "------------------------------\n");
 
+	const uint64_t precision_ns = timer_precision();
+
 	fprintf(stdout, "Size of a single data element: %ld bits\n",
 			8 * sizeof(DATA_TYPE));
 	fprintf(stdout, "Size of an index: %ld bits\n", 8 * sizeof(INDEX_TYPE));
 	fprintf(stdout, "Max elements per array: %d\n", max_length);
 	fprintf(stdout, "I will use 2 arrays\n");
-	fprintf(stdout, "Timer precision: %d nanoseconds\n", timer_precision());
+	fprintf(stdout, "Timer precision: %ld nanoseconds\n", precision_ns);
 #ifdef _OPENMP
 	int nthreads_detected = 0;
 #pragma omp parallel
@@ -219,12 +252,17 @@ int main(const int argc, const char **argv) {
 			const double finish = timer();
 			const double elapsed = finish - start;
 
+			// Discard invalid values
+			if(elapsed < (double) precision_ns * 1e-9) {
+				continue;
+			}
+
 			/*
 				Computing bandwidth as bytes transferred per second.
 				The 2 * bytes is there because we are copying values from one
 				array to another: 1 copy = 1 read + 1 write
 			*/
-			const double new_value = (2 * bytes) / elapsed;
+			const double new_value = (double)(2 * bytes) / elapsed;
 			if (values_length >= values_size) {
 				values_size *= 2;
 				values = realloc(values, values_size * sizeof(RESULT_TYPE));
@@ -276,9 +314,9 @@ int main(const int argc, const char **argv) {
 		free(b);
 		free(values);
 
-		printf(CYAN "%7.3f %2s" WHITE " (%12u elements): " GREEN
+		printf(" " CYAN "%7.3f %3s" WHITE " (%12u elements): " GREEN
 					"%7.3f %2s/s" WHITE " +- " YELLOW "%7.3f %2s/s" RESET "\n",
-			   format_bytes(bytes), biggest_byte_unit_for(bytes), length,
+			   format_binary_bytes(bytes), biggest_binary_byte_unit_for(bytes), length,
 			   format_bytes(mean_bw), biggest_byte_unit_for(mean_bw),
 			   format_bytes(hwci_bw), biggest_byte_unit_for(hwci_bw));
 	}
