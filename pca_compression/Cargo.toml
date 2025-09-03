@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "common",
+  "pcazip",
+  "pcaunzip",
+]
+resolver = "3"
+
+[profile.dev]
+debug-assertions = true
+opt-level = 0
+
+[profile.release]
+debug-assertions = false
+opt-level = 3
