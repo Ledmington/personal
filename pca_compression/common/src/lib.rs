@@ -1,9 +1,8 @@
-use std::{
-    fs::File,
-    io::{BufReader, Read},
-};
-
 use bitbuffer::{BigEndian, BitReadBuffer, BitReadStream, BitWriteStream};
+
+const MASK: u64 = 0x001f_ffff_ffff_ffffu64;
+// TODO: convert MASK_BITS to usize
+const MASK_BITS: u32 = MASK.count_ones(); // 53
 
 // Compute column means
 fn column_means(data: &[Vec<f64>]) -> Vec<f64> {
@@ -62,8 +61,27 @@ fn normalize(v: &mut [f64]) {
     }
 }
 
+fn is_symmetric(matrix: &[Vec<f64>]) -> bool {
+    let rows = matrix.len();
+    let cols = matrix[0].len();
+
+    for i in 0..rows {
+        for j in (i + 1)..cols {
+            if matrix[i][j] != matrix[j][i] {
+                return false;
+            }
+        }
+    }
+
+    true
+}
+
 // Power iteration to find top eigenvector of a symmetric matrix
 fn power_iteration(matrix: &[Vec<f64>], n_iter: usize) -> (f64, Vec<f64>) {
+    assert!(!matrix.is_empty());
+    assert!(matrix.iter().all(|v| v.len() == matrix[0].len()));
+    assert!(is_symmetric(matrix));
+
     let n = matrix.len();
     let mut b = vec![1.0; n];
     normalize(&mut b);
@@ -97,6 +115,10 @@ fn power_iteration(matrix: &[Vec<f64>], n_iter: usize) -> (f64, Vec<f64>) {
 
 // PCA: compute top n_components
 pub fn pca(data: &[Vec<f64>], n_components: usize) -> (Vec<Vec<f64>>, Vec<f64>, Vec<Vec<f64>>) {
+    assert!(n_components > 0);
+    assert!(!data.is_empty());
+    assert!(data.iter().all(|v| v.len() == n_components));
+
     let means = column_means(data);
     let centered = center_data(data, &means);
     let cov = covariance_matrix(&centered);
@@ -129,18 +151,20 @@ pub fn pca(data: &[Vec<f64>], n_components: usize) -> (Vec<Vec<f64>>, Vec<f64>, 
     (projected, eigenvalues, eigenvectors)
 }
 
-pub fn print_buffer(buffer: &[u8]) {
+pub fn print_buffer(buffer: &[u8]) -> String {
     const MAX_BYTES_PER_ROW: usize = 16;
+    let mut s: String = "".to_owned();
     for i in 0..buffer.len() {
         if i % MAX_BYTES_PER_ROW == 0 {
-            print!("{:08x}:", i);
+            s.push_str(format!("{:08x}:", i).as_str());
         }
-        print!(" {:02x}", buffer[i]);
+        s.push_str(format!(" {:02x}", buffer[i]).as_str());
         if i % MAX_BYTES_PER_ROW == MAX_BYTES_PER_ROW - 1 {
-            println!();
+            s.push('\n');
         }
     }
-    println!();
+    s.push('\n');
+    s
 }
 
 pub fn split_into_chunks(arr: &[f64], k: usize) -> Vec<Vec<f64>> {
@@ -180,17 +204,6 @@ pub fn divisors(x: usize) -> Vec<usize> {
     tmp
 }
 
-pub fn read_file_bytes(filename: &str) -> Vec<u8> {
-    let input: File = File::open(filename).unwrap();
-    let mut reader: BufReader<File> = BufReader::new(input);
-    let mut buffer: Vec<u8> = Vec::new();
-
-    // Read whole file into vector (FIXME?)
-    reader.read_to_end(&mut buffer).unwrap();
-
-    buffer
-}
-
 pub fn project_data(centered: &Vec<Vec<f64>>, eigenvectors: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
     let n_samples = centered.len();
     let k = eigenvectors.len(); // number of components
@@ -207,85 +220,178 @@ pub fn project_data(centered: &Vec<Vec<f64>>, eigenvectors: &Vec<Vec<f64>>) -> V
     projected
 }
 
-pub fn convert_u8_to_f64(input: &[u8]) -> Vec<f64> {
-    // read 61 bits from input stream to create a "random" double precision floating point value in the [0;1] range.
-    const MASK: u64 = 0x3fef_ffff_ffff_ffff;
-    assert!(MASK.count_ones() == 61);
-
-    let input_bytes: usize = input.len();
-
-    let n_pca_values: usize = ((input_bytes * 8) as f64 / 61.0).ceil() as usize;
-
-    println!("{} bytes -> {} values for PCA", input_bytes, n_pca_values);
-
-    let mut pca_values: Vec<f64> = vec![0.0; n_pca_values];
-
-    let bit_buffer = BitReadBuffer::new(&input, BigEndian);
-    let mut stream = BitReadStream::new(bit_buffer);
-    let mut idx: usize = 0;
-    for _ in 0..(n_pca_values - 1) {
-        // 0x3fef_ffff_ffff_ffff
-        let mut tmp: u64;
-        // first, read 9 consecutive bits
-        tmp = stream.read_int::<u64>(9).unwrap() << 53;
-        // then, read another 52 consecutive bits
-        tmp |= stream.read_int::<u64>(52).unwrap();
-        assert!(tmp.count_ones() <= 61);
-
-        let x = f64::from_bits(tmp);
-        assert!(x >= 0.0 && x <= 1.0);
-        pca_values[idx] = x;
-        idx += 1;
-    }
-    // the last value is padded
-    {
-        let mut tmp: u64;
-        // first, read 9 consecutive bits
-        tmp = stream.read_int::<u64>(9).unwrap() << 53;
-        // then, read another 52 consecutive bits
-        tmp |= stream
-            .read_int::<u64>((input_bytes * 8) - stream.pos())
-            .unwrap();
-        assert!(tmp.count_ones() <= 61);
-
-        let x = f64::from_bits(tmp);
-        assert!(x >= 0.0 && x <= 1.0);
-        pca_values[idx] = x;
-    }
-
-    pca_values
+fn convert_u64_to_f64(input: u64) -> f64 {
+    assert!(input & (!MASK) == 0); // shouldn't this be an if with an error?
+    let d: f64 = (input as f64) / ((1u64 << MASK_BITS) as f64);
+    assert!(!d.is_nan());
+    assert!(d.is_finite());
+    assert!(d >= 0.0 && d < 1.0);
+    return d;
 }
 
-pub fn convert_f64_to_u8(input: &[f64]) -> Vec<u8> {
-    // use the mask to extract the only relevant 61 bits and encode those
-    const MASK: u64 = 0x3fef_ffff_ffff_ffff;
-    assert!(MASK.count_ones() == 61);
+fn convert_f64_to_u64(input: f64) -> u64 {
+    // shouldn't these assertions be an if with an error?
+    assert!(!input.is_nan());
+    assert!(input.is_finite());
+    assert!(input >= 0.0 && input < 1.0);
+    let x: u64 = (input * ((1u64 << MASK_BITS) as f64)) as u64;
+    assert!(x & (!MASK) == 0);
+    return x;
+}
 
-    let input_elements: usize = input.len();
-
-    let n_output_bytes: usize = (((input_elements * 64) as f64 / 61.0).ceil() as usize + 7) / 8;
+pub fn convert_vec_u8_to_vec_f64(input: &[u8]) -> Vec<f64> {
+    let n_input_bytes: usize = input.len();
+    let n_input_bits: usize = n_input_bytes * 8;
+    let n_output_elements: usize = (n_input_bits + (MASK_BITS - 1) as usize) / MASK_BITS as usize;
 
     println!(
-        "{} values from PCA -> {} bytes",
-        input_elements, n_output_bytes
+        "{} bytes -> {} values for PCA",
+        n_input_bytes, n_output_elements
+    );
+
+    let mut output_elements: Vec<f64> = vec![0f64; n_output_elements];
+
+    let input_buffer = BitReadBuffer::new(&input, BigEndian);
+    let mut stream = BitReadStream::new(input_buffer);
+    let mut output_element_index: usize = 0;
+
+    let mut tmp: u64 = 0;
+    for bit_index in 0..n_input_bits {
+        // add each bit one by one
+        if stream.read_bool().unwrap() {
+            tmp |= 1u64 << ((MASK_BITS as usize) - 1 - bit_index);
+        }
+
+        if bit_index % (MASK_BITS as usize) == 0 {
+            // time to write!
+            let d: f64 = convert_u64_to_f64(tmp);
+            output_elements[output_element_index] = d;
+            output_element_index += 1;
+            tmp = 0;
+        }
+    }
+
+    assert!(output_element_index == n_output_elements);
+
+    output_elements
+}
+
+pub fn convert_vec_f64_to_vec_u8(input: &[f64], n_bits: usize) -> Vec<u8> {
+    let n_input_elements: usize = input.len();
+    let n_input_bytes: usize = n_input_elements * 8;
+    let n_input_bits: usize = n_input_bytes * 8;
+    let n_output_bytes: usize = ((n_input_elements * (MASK_BITS as usize)) + 7) / 8;
+
+    println!(
+        "{} values from PCA ({} bits) -> {} bytes",
+        n_input_elements, n_bits, n_output_bytes
     );
 
     let mut output_bytes: Vec<u8> = vec![0u8; n_output_bytes];
 
-    let mut stream = BitWriteStream::new(&mut output_bytes, BigEndian);
+    let input_as_u8: Vec<u8> = input.iter().flat_map(|&d| d.to_be_bytes()).collect();
+    let input_buffer = BitReadBuffer::new(&input_as_u8, BigEndian);
+    let mut input_stream = BitReadStream::new(input_buffer);
+    let mut output_stream = BitWriteStream::new(&mut output_bytes, BigEndian);
 
-    for i in 0..input.len() {
-        let d: f64 = input[i];
-        let x: u64 = f64::to_bits(d) & MASK;
+    for bit_index in 0..n_input_bits {
+        // skip bits outside the mask
+        if (bit_index % 64) < (64 - (MASK_BITS as usize)) {
+            continue;
+        }
 
-        // write first 9 bits
-        stream
-            .write_int((x & 0x3fe0_0000_0000_0000u64) >> 53, 9)
+        output_stream
+            .write_bool(input_stream.read_bool().unwrap())
             .unwrap();
-
-        // write other 52 bits
-        stream.write_int(x & 0x000f_ffff_ffff_ffffu64, 52).unwrap();
     }
 
     output_bytes
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use rand::{
+        Rng, RngCore, SeedableRng,
+        rngs::{StdRng, ThreadRng},
+    };
+    use rstest::rstest;
+
+    #[rstest]
+    #[case(0u64, 0f64)]
+    #[case(0x001f_ffff_ffff_ffffu64, 0.9999999999999999f64)]
+    #[case(0x000f_ffff_ffff_ffffu64, 0.4999999999999999f64)]
+    fn u64_to_f64_conversion(#[case] x: u64, #[case] d: f64) {
+        assert_eq!(d, convert_u64_to_f64(x));
+    }
+
+    #[rstest]
+    #[case(0f64, 0u64)]
+    #[case(0.9999999999999999f64, 0x001f_ffff_ffff_ffffu64)]
+    #[case(0.4999999999999999f64, 0x000f_ffff_ffff_ffffu64)]
+    fn f64_to_u64_conversion(#[case] d: f64, #[case] x: u64) {
+        assert_eq!(x, convert_f64_to_u64(d));
+    }
+
+    #[test]
+    fn random_u64_to_f64_conversion() {
+        let mut seed = [0u8; 32];
+        rand::rng().fill(&mut seed);
+        let mut rng: StdRng = StdRng::from_seed(seed);
+
+        let n: usize = 1_000_000;
+        for _ in 0..n {
+            let x: u64 = rng.next_u64() & MASK;
+            let converted: u64 = convert_f64_to_u64(convert_u64_to_f64(x));
+            assert_eq!(x, converted, "Seed : {:?}", seed);
+        }
+    }
+
+    #[test]
+    fn random_f64_to_u64_conversion() {
+        let mut seed = [0u8; 32];
+        rand::rng().fill(&mut seed);
+        let mut rng: StdRng = StdRng::from_seed(seed);
+
+        let n: usize = 1_000_000;
+        for _ in 0..n {
+            let d: f64 = rng.random_range(0.0..1.0);
+            let tmp = convert_f64_to_u64(d);
+            let converted: f64 = convert_u64_to_f64(tmp);
+            assert_eq!(d, converted, "Seed : {:?}", seed);
+        }
+    }
+
+    #[rstest]
+    #[case(1)]
+    #[case(2)]
+    #[case(4)]
+    #[case(8)]
+    // #[case(16)]
+    // #[case(32)]
+    // #[case(64)]
+    // #[case(128)]
+    // #[case(256)]
+    // #[case(512)]
+    // #[case(1024)]
+    fn byte_vec_conversion(#[case] n: usize) {
+        let mut rng: ThreadRng = rand::rng();
+        let mut input: Vec<u8> = vec![0u8; n];
+        for i in 0..n {
+            input[i] = rng.random_range(0..256) as u8;
+        }
+        let d: Vec<f64> = convert_vec_u8_to_vec_f64(&input);
+        for x in d.iter() {
+            println!("{:016x}", f64::to_bits(*x));
+        }
+        let output: Vec<u8> = convert_vec_f64_to_vec_u8(&d, n * 8);
+        assert_eq!(
+            input,
+            output,
+            "\nINPUT:\n{}\nOUTPUT:\n{}\n",
+            print_buffer(&input),
+            print_buffer(&output)
+        );
+    }
 }

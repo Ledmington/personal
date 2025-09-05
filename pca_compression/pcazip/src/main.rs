@@ -1,9 +1,24 @@
-use std::{env, fs, io::Write};
+use std::{
+    env,
+    fs::{self, File},
+    io::{BufReader, Read, Write},
+};
 
 use common::{
-    convert_f64_to_u8, convert_u8_to_f64, divisors, linearize, pca, project_data, read_file_bytes,
+    convert_vec_f64_to_vec_u8, convert_vec_u8_to_vec_f64, divisors, linearize, pca, project_data,
     split_into_chunks,
 };
+
+fn read_file_bytes(filename: &str) -> Vec<u8> {
+    let input: File = File::open(filename).unwrap();
+    let mut reader: BufReader<File> = BufReader::new(input);
+    let mut buffer: Vec<u8> = Vec::new();
+
+    // Read whole file into vector (FIXME?)
+    reader.read_to_end(&mut buffer).unwrap();
+
+    buffer
+}
 
 fn main() {
     if false {
@@ -35,7 +50,7 @@ fn main() {
     // Debug
     // print_buffer(&buffer);
 
-    let mut pca_values: Vec<f64> = convert_u8_to_f64(&buffer);
+    let mut pca_values: Vec<f64> = convert_vec_u8_to_vec_f64(&buffer);
     let n_pca_values: usize = pca_values.len();
 
     // scale all values from [0.0; 1.0] to [-1.0; 1.0]
@@ -98,7 +113,7 @@ fn main() {
     let projected = project_data(&vectors, &top_eigenvectors);
     let linearized = linearize(&projected);
 
-    let output_bytes = convert_f64_to_u8(&linearized);
+    let output_bytes = convert_vec_f64_to_vec_u8(&linearized, linearized.len() * 61);
     let output_filename = filename.to_owned() + ".pcazip";
     println!("Writing compressed output to '{}'", output_filename);
 
@@ -110,15 +125,4 @@ fn main() {
         .unwrap();
 
     file.write_all(&output_bytes).unwrap();
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
 }

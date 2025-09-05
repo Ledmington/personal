@@ -6,10 +6,16 @@ members = [
 ]
 resolver = "3"
 
+[profile.release]
+debug-assertions = false
+opt-level = 3
+
 [profile.dev]
 debug-assertions = true
 opt-level = 0
 
-[profile.release]
-debug-assertions = false
-opt-level = 3
+[profile.test]
+debug-assertions = true
+opt-level = 0
+strip = "none"
+overflow-checks = true
