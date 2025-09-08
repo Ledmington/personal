@@ -1,7 +1,7 @@
 fn reconstruct_data(
-    projected: &Vec<Vec<f64>>,    // Z, n_samples × k
-    eigenvectors: &Vec<Vec<f64>>, // V, k × n_features
-    means: &Vec<f64>,             // μ, n_features
+    projected: &[Vec<f64>],    // Z, n_samples × k
+    eigenvectors: &[Vec<f64>], // V, k × n_features
+    means: &[f64],             // μ, n_features
 ) -> Vec<Vec<f64>> {
     let n_samples = projected.len();
     let n_features = means.len();

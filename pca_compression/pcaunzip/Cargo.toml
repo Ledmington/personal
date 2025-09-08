@@ -4,4 +4,6 @@ name = "pcaunzip"
 version = "0.1.0"
 
 [dependencies]
-common = {path = "../common"}
+common = { path = "../common" }
+log = { workspace = true }
+env_logger = { workspace = true }

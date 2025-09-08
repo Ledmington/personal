@@ -2,9 +2,13 @@
 members = [
   "common",
   "pcazip",
-  "pcaunzip",
+  "pcaunzip"
 ]
 resolver = "3"
+
+[workspace.dependencies]
+log = { version = "0.4", features = ["std", "serde"] }
+env_logger = "0.11"
 
 [profile.release]
 debug-assertions = false
@@ -19,3 +23,7 @@ debug-assertions = true
 opt-level = 0
 strip = "none"
 overflow-checks = true
+
+[profile.bench]
+debug-assertions = false
+opt-level = 3
