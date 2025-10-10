@@ -6,3 +6,4 @@
 out/
 **/target/
 *.png
+build/
