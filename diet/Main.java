@@ -1,11 +1,13 @@
 package diet;
 
+import java.util.Objects;
+
 public final class Main {
 
     private static void printTableau(final double[][] tab) {
         for (int i = 0; i < tab.length; i++) {
             for (int j = 0; j < tab[i].length; j++) {
-                System.out.printf("%+3.3f ", tab[i][j]);
+                System.out.printf("%+9.3f ", tab[i][j]);
             }
             System.out.println();
         }
@@ -70,24 +72,34 @@ public final class Main {
         }
     }
 
-    private static final class Food {
-        private final double avgPricePerKilo;
-        private final double avgWeight;
-        private final double fatPercentage;
-        private final double carbPercentage;
-        private final double proteinPercentage;
+    private static record Food(String name, double avgPricePerKilo, double avgWeight, double fatPercentage,
+            double carbPercentage,
+            double proteinPercentage) {
 
-        public Food(double avgPricePerKilo, double avgWeight, double fatPercentage, double carbPercentage,
-                double proteinPercentage) {
-            this.avgPricePerKilo = avgPricePerKilo;
-            this.avgWeight = avgWeight;
-            this.fatPercentage = fatPercentage;
-            this.carbPercentage = carbPercentage;
-            this.proteinPercentage = proteinPercentage;
-        }
-
-        public double price() {
-            return avgPricePerKilo;
+        public Food {
+            Objects.requireNonNull(name);
+            if (name.isBlank()) {
+                throw new IllegalArgumentException("Empty name.");
+            }
+            if (avgPricePerKilo <= 0.0) {
+                throw new IllegalArgumentException("Non-positive average price per kilo.");
+            }
+            // NOTE: weight is in grams
+            if (avgWeight <= 0.0) {
+                throw new IllegalArgumentException("Non-positive average weight.");
+            }
+            if (fatPercentage <= 0.0 || fatPercentage >= 1.0) {
+                throw new IllegalArgumentException("Invalid fat percentage.");
+            }
+            if (carbPercentage <= 0.0 || carbPercentage >= 1.0) {
+                throw new IllegalArgumentException("Invalid carbohydrates percentage.");
+            }
+            if (proteinPercentage <= 0.0 || proteinPercentage >= 1.0) {
+                throw new IllegalArgumentException("Invalid protein percentage.");
+            }
+            if (fatPercentage + carbPercentage + proteinPercentage >= 1.0) {
+                throw new IllegalArgumentException("Invalid sum of percentages.");
+            }
         }
 
         public double fats() {
@@ -103,52 +115,94 @@ public final class Main {
         }
     }
 
+    private static char getVariableName(final int variableIndex) {
+        return (char) ('a' + variableIndex);
+    }
+
     public static void main(final String[] args) {
         if (args.length > 0) {
             System.out.println("This program does not need input arguments. Ignoring them.");
         }
 
-        // the following data is reported by column
-        // a banana weighs 125 grams, of which: 0.3% fats, 23% carbs, 1.1% proteins
-        // an apple weighs 100 grams, of which: 0.2% fats, 14% carbs, 0.3% proteins
-        // a carrot weighs 60 grams, of which: 0.2% fats, 9.6% carbs, 0.9% proteins
-        // a pizza weighs 900 grams, of which: 10% fats, 33% carbs, 11% proteins
-        // a beef steak weighs 250 grams, of which: 19% fats, 0% carbs, 25% proteins
-        // a banana costs 2.39€ per 1 kg
-        // an apple costs 2.99€ per 1 kg
-        // a carrot costs 2.69€ per 1 kg
-        // a pizza costs 5€ per 1 kg
-        // a beef steak costs 15.49€ per 1 kg
-        final Food banana = new Food(2.39, 125, 0.003, 0.23, 0.011);
-        final Food apple = new Food(2.99, 100, 0.002, 0.14, 0.003);
-        final Food carrot = new Food(2.69, 60, 0.002, 0.096, 0.009);
-        final Food pizza = new Food(5, 900, 0.1, 0.33, 0.11);
-        final Food steak = new Food(15.49, 250, 0.19, 0, 0.25);
-        final double calories = 2500;
+        final Food[] foods = {
+                new Food("banana", 2.39, 125, 0.003, 0.23, 0.011),
+                new Food("apple", 2.99, 100, 0.002, 0.14, 0.003),
+                new Food("carrot", 2.69, 60, 0.002, 0.096, 0.009),
+                new Food("pizza", 5, 900, 0.1, 0.33, 0.11),
+                new Food("steak", 15.49, 250, 0.19, 0.001, 0.25)
+        };
+        final int numFoods = foods.length;
+
+        final double totalCalories = 2500;
+        final double maxCalories = 3000;
+        final double minCalories = 2000;
+        final double maxCarbohydrates = 0.55 * totalCalories;
+        final double minCarbohydrates = 0.45 * totalCalories;
+        final double maxProteins = 0.35 * totalCalories;
+        final double minProteins = 0.1 * totalCalories;
+        final double maxFats = 0.35 * totalCalories;
+        final double minFats = 0.2 * totalCalories;
 
         // This matrix represents the system of linear inequalities.
         // the "naive" constraints (x,y,z >= 0) are implicit
-        final double[][] system = new double[][] {
-                // these constraints are the rows
-                // sum of all calories must be >= 2000 and <= 3000 (average adult male)
-                // sum of all carbs must be >= 45% and <= 55% of all daily calories
-                // sum of all proteins must be >= 10% and <= 35% of all daily calories
-                // sum of all fats must be >= 20% and <= 35% of all daily calories
+        final double[][] system = new double[6][numFoods + 1];
 
-                { banana.carbs(), apple.carbs(), carrot.carbs(), pizza.carbs(), steak.carbs(), 0.55 * calories },
-                { -banana.carbs(), -apple.carbs(), -carrot.carbs(), -pizza.carbs(), -steak.carbs(), -0.45 * calories },
-                { banana.proteins(), apple.proteins(), carrot.proteins(), pizza.proteins(), steak.proteins(),
-                        0.35 * calories },
-                { -banana.proteins(), -apple.proteins(), -carrot.proteins(), -pizza.proteins(), -steak.proteins(),
-                        -0.1 * calories },
-                { banana.fats(), apple.fats(), carrot.fats(), pizza.fats(), steak.fats(), 0.35 * calories },
-                { -banana.fats(), -apple.fats(), -carrot.fats(), -pizza.fats(), -steak.fats(), -0.2 * calories },
-        };
+        // "Max Carbohydrates" constraint
+        for (int i = 0; i < numFoods; i++) {
+            system[0][i] = foods[i].carbs();
+        }
+        system[0][numFoods] = maxCarbohydrates;
+
+        // "Min Carbohydrates" constraint
+        for (int i = 0; i < numFoods; i++) {
+            system[1][i] = -foods[i].carbs();
+        }
+        system[1][numFoods] = -minCarbohydrates;
+
+        // "Max Proteins" constraint
+        for (int i = 0; i < numFoods; i++) {
+            system[2][i] = foods[i].proteins();
+        }
+        system[2][numFoods] = maxProteins;
+
+        // "Min Proteins" constraint
+        for (int i = 0; i < numFoods; i++) {
+            system[3][i] = -foods[i].proteins();
+        }
+        system[3][numFoods] = -minProteins;
+
+        // "Max Fats" constraint
+        for (int i = 0; i < numFoods; i++) {
+            system[4][i] = foods[i].fats();
+        }
+        system[4][numFoods] = maxFats;
+
+        // "Min Fats" constraint
+        for (int i = 0; i < numFoods; i++) {
+            system[5][i] = -foods[i].fats();
+        }
+        system[5][numFoods] = -minFats;
 
         // the function to be maximized (if you want a minimization objective function,
         // put all negative weights instead of positive)
-        final double[] function = new double[] { -banana.price(), -apple.price(), -carrot.price(), -pizza.price(),
-                -steak.price() };
+        final double[] function = new double[numFoods];
+        for (int i = 0; i < numFoods; i++) {
+            function[i] = -foods[i].avgPricePerKilo();
+        }
+
+        System.out.println("Input data:");
+        System.out.println(" NAME      €/kg   %carb     %fat    %protein");
+        for (int i = 0; i < numFoods; i++) {
+            System.out.printf(" %-7s %6.2f  %6.3f%%  %6.3f%%   %6.3f%%  (%c)%n", foods[i].name(),
+                    foods[i].avgPricePerKilo(),
+                    foods[i].carbPercentage() * 100.0, foods[i].fatPercentage() * 100.0,
+                    foods[i].proteinPercentage() * 100.0, getVariableName(i));
+        }
+        System.out.println();
+        System.out.printf("Total calories from carbohydrates: [ %6.1f ; %6.1f ]%n", minCarbohydrates, maxCarbohydrates);
+        System.out.printf("Total calories from fats         : [ %6.1f ; %6.1f ]%n", minFats, maxFats);
+        System.out.printf("Total calories from proteins     : [ %6.1f ; %6.1f ]%n", minProteins, maxProteins);
+        System.out.println();
 
         final boolean useBlandRule = true;
 
@@ -157,9 +211,9 @@ public final class Main {
             throw new IllegalArgumentException("There are no constraints in this problem.");
         }
 
-        final int nVariables = system[0].length - 1;
+        final int numVariables = numFoods;
         for (int i = 1; i < system.length; i++) {
-            if (system[i].length != nVariables + 1) {
+            if (system[i].length != numVariables + 1) {
                 throw new IllegalArgumentException(String.format(
                         "The %d-th constraint has a different number of variables form the first constraint.", i + 1));
             }
@@ -168,18 +222,18 @@ public final class Main {
         if (function.length == 0) {
             throw new IllegalArgumentException("There are no variables in the optimization function.");
         }
-        if (function.length != nVariables) {
+        if (function.length != numVariables) {
             throw new IllegalArgumentException(String.format(
                     "The optimization function has a different number of parameters (%d) than the number of available variables (%d).",
-                    function.length, nVariables));
+                    function.length, numVariables));
         }
         // end input check
 
         // printing the problem
         {
             System.out.println("Given that:");
-            for (int i = 0; i < nVariables; i++) {
-                for (int j = 0; j < nVariables; j++) {
+            for (int i = 0; i < numVariables; i++) {
+                for (int j = 0; j < numVariables; j++) {
                     if (i == j) {
                         System.out.printf("%9s%c ", String.format("%+3.3f", 1.0), 'a' + i);
                     } else {
@@ -189,21 +243,21 @@ public final class Main {
                 System.out.println(">= 0");
             }
             for (int i = 0; i < system.length; i++) {
-                for (int j = 0; j < nVariables; j++) {
+                for (int j = 0; j < numVariables; j++) {
                     if (system[i][j] != 0) {
                         System.out.printf("%9s%c ", String.format("%+3.3f", system[i][j]), 'a' + j);
                     } else {
                         System.out.print("           ");
                     }
                 }
-                System.out.printf("<= %+3.3f\n", system[i][nVariables]);
+                System.out.printf("<= %+3.3f\n", system[i][numVariables]);
             }
 
             System.out.println();
             System.out.println("We want to maximize: ");
             System.out.print("Z = ");
             for (int i = 0; i < function.length; i++) {
-                if (i < nVariables) {
+                if (i < numVariables) {
                     System.out.printf("%+3.3f%c ", function[i], 'a' + i);
                 } else {
                     System.out.printf("%+3.3f\n", function[i]);
@@ -213,13 +267,13 @@ public final class Main {
         }
 
         // standardizing the problem
-        final double[][] standardSystem = new double[system.length][nVariables + 1 + system.length];
+        final double[][] standardSystem = new double[system.length][numVariables + 1 + system.length];
         for (int i = 0; i < system.length; i++) {
-            for (int j = 0; j < nVariables; j++) {
+            for (int j = 0; j < numVariables; j++) {
                 standardSystem[i][j] = system[i][j];
             }
-            standardSystem[i][nVariables + i] = 1;
-            standardSystem[i][standardSystem[i].length - 1] = system[i][nVariables];
+            standardSystem[i][numVariables + i] = 1;
+            standardSystem[i][standardSystem[i].length - 1] = system[i][numVariables];
         }
 
         // printing the standardized system
@@ -241,7 +295,7 @@ public final class Main {
             System.out.println("We want to maximize: ");
             System.out.print("Z ");
             for (int i = 0; i < function.length; i++) {
-                if (i < nVariables) {
+                if (i < numVariables) {
                     System.out.printf("%+3.3f%c ", -function[i], 'a' + i);
                 } else {
                     System.out.printf("%+3.3f ", -function[i]);
@@ -280,7 +334,7 @@ public final class Main {
             // printTableau(tableau);
             System.out.println("Current solution:");
             for (int i = 0; i < tableau[0].length - 2; i++) {
-                final char variableName = (char) ('a' + i);
+                final char variableName = getVariableName(i);
 
                 if (tableau[tableau.length - 1][i] != 0) {
                     System.out.printf("  %c = 0\n", variableName);
