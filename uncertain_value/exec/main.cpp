@@ -1,8 +1,8 @@
+#include <uncertain_value/nominal_uncertain_value.hpp>
+
 #include <iomanip>
 #include <iostream>
 #include <vector>
-
-#include "uncertain_value.hpp"
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
@@ -20,7 +20,7 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v) {
 template <typename T>
 T sum(const std::vector<T>& v) {
 	T s(0);
-	for (auto i = 0; i < v.size(); i++) {
+	for (size_t i = 0; i < v.size(); i++) {
 		s += v[i];
 	}
 	return s;
@@ -43,7 +43,7 @@ T stable_sum(const std::vector<T>& v) {
 
 void vector_sum() {
 	const int N = 1000000;
-	std::vector<uncertain_value> v(N, 1e-8);
+	std::vector<nominal_uncertain_value> v(N, 1e-8);
 
 	// std::cout << "Input: " << v << "\n";
 	std::cout << "Standard sum: " << std::setprecision(20) << sum(v) << "\n";
