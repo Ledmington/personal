@@ -46,4 +46,4 @@ I hope you'll find something useful :)
 - [mincorr](https://github.com/Ledmington/personal/tree/master/mincorr) is a little C program that finds the array with minimum correlation with a given array.
 - [mulper](https://github.com/Ledmington/personal/tree/master/mulper) is a little java program to find the smallest numbers with the highest multiplicative persistence.
 - [multiply_strings](https://github.com/Ledmington/personal/tree/master/multiply_strings) is a little experiment with the concept of "multiplying strings".
-- [uncertain_value](https://github.com/Ledmington/personal/tree/master/uncertain_value) is a small library trying to implement interval/uncertainty arithmetic to help finding floating-point accuracy losses in algorithms.
+- [uncertain_value](https://github.com/Ledmington/personal/tree/master/uncertain_value) is a small library trying to implement interval/uncertainty arithmetic to help finding floating-point accuracy losses in algorithms. This little library has later become a project on its own [here](https://github.com/Ledmington/uncertain_value).
