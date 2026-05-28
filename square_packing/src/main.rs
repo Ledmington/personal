@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::f64::consts::PI;
+use std::{f64::consts::PI, fs};
 
 use plotters::prelude::*;
 use rand::{RngExt, SeedableRng, rngs::ChaCha8Rng};
@@ -662,6 +662,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Num. Squares : {}", n_squares);
     println!("Lower Bound  : {}", lower_bound);
     println!("Upper Bound  : {}", upper_bound);
+
+    fs::create_dir_all("frames")?;
 
     let mut squares = init_random(42, n_squares, upper_bound);
     translate_to_origin(&mut squares);
