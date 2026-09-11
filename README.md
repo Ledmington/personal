@@ -23,6 +23,7 @@ I hope you'll find something useful :)
 - [grover](https://github.com/Ledmington/personal/tree/master/grover) is a small Rust implementation of Grover's quantum search algorithm
 - [kmeans](https://github.com/Ledmington/personal/tree/master/kmeans) is a little Rust implementation of the K-Means algorithm with plot generation.
 - [kruskal_clustering](https://github.com/Ledmington/personal/tree/master/kruskal_clustering) is a Rust implementation of a simple clustering algorithm based on Kruskal's algorithm for the minimum vertex cover.
+- [lennard_jones](https://github.com/Ledmington/personal/tree/master/lennard_jones) is a Rust comparison between a usual gradient descent algorithm and simulated annealing when looking for the global minimum of a Lennard-Jones cluster of N particles
 - [lev](https://github.com/Ledmington/personal/tree/master/lev) is a personal C++ implementation of various algorithms to compute the Levenshtein distance and one simple command-line application to find the most similar lines in a file
 - [linear_regression](https://github.com/Ledmington/personal/tree/master/linear_regression) is a personal Rust implementation of a linear regressor with a plot of the dataset
 - [mergesort](https://github.com/Ledmington/personal/tree/master/mergesort) is a performance comparison between 5 different C implementations of the Merge-Sort algorithm.

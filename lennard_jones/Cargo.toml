@@ -1,0 +1,11 @@
+[package]
+name = "lennard_jones"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.6.6", features = ["derive"] }
+env_logger = "0.11.11"
+log = "0.4.34"
+rand = "0.10.1"
+rand_distr = "0.6.0"
