@@ -20,6 +20,7 @@ I hope you'll find something useful :)
 - [cuthill_mckee](https://github.com/Ledmington/personal/tree/master/cuthill_mckee) is a personal Rust implementation and visualization of the [Cuthill-McKee algorithm](https://en.wikipedia.org/wiki/Cuthill%E2%80%93McKee_algorithm)
 - [diet](https://github.com/Ledmington/personal/tree/master/diet) is a personal java implementation of the simplex algorithm applied to solve the "diet problem"
 - [disk_bench](https://github.com/Ledmington/personal/tree/master/disk_bench) is a comparison of different disk scheduling algorithms in Rust
+- [grover](https://github.com/Ledmington/personal/tree/master/grover) is a small Rust implementation of Grover's quantum search algorithm
 - [kmeans](https://github.com/Ledmington/personal/tree/master/kmeans) is a little Rust implementation of the K-Means algorithm with plot generation.
 - [kruskal_clustering](https://github.com/Ledmington/personal/tree/master/kruskal_clustering) is a Rust implementation of a simple clustering algorithm based on Kruskal's algorithm for the minimum vertex cover.
 - [lev](https://github.com/Ledmington/personal/tree/master/lev) is a personal C++ implementation of various algorithms to compute the Levenshtein distance and one simple command-line application to find the most similar lines in a file
