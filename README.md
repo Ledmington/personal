@@ -10,6 +10,7 @@ I hope you'll find something useful :)
 - [orologio](https://github.com/Ledmington/personal/tree/master/orologio) is a little Python script that calculates the probability of winning a card solitaire game called "Orologio" (the clock).
 - [paroliere](https://github.com/Ledmington/personal/tree/master/paroliere) is a C implementation of a brute-force algorithm that finds all possible italian words in a game of "Paroliere" (it's very similar to Ruzzle).
 - [secret_code](https://github.com/Ledmington/personal/tree/master/secret_code) is a C implementation of an algorithm that wins the game "Secret Code" against you (the game is similar to Mastermind).
+- [sea_battle](https://github.com/Ledmington/personal/tree/master/sea_battle) is a Rust implementation of a simple algorithm to win at "Sea Battle" (or Battleships).
 - [word_guesser](https://github.com/Ledmington/personal/tree/master/word_guesser) is a simple C game that guesses your word through binary search.
 
 ## Algorithms and Data Structures
